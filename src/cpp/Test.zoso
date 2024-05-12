@@ -1,13 +1,13 @@
-Program {
+Zoso {
 
 
        
     print("sdds");
     int variable;
     float instagram;
-    void whatsapp, w, w, w;
+    void whatsapp;
     ident;
     argo; argo;
-    function void arg(int fff,fff,f; float asdfas,asdfas;){}
+    function void arg(int fff,f; float asdsfas,asdfas;){}
 
 }

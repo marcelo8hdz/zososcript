@@ -22,7 +22,9 @@ int main(int argc, char* argv[]) {
 
     Scanner* scanner = new Scanner(inputFile);
     Parser* parser = new Parser(scanner);
-    SymbolTable* symbolTable = new SymbolTable(parser);
+
+    parser -> symbolTable = new SymbolTable(parser);
+
 
     parser -> Parse();
 

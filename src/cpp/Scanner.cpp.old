@@ -448,7 +448,7 @@ void Scanner::Init() {
 	keywords.set(L"void", 13);
 	keywords.set(L"function", 14);
 	keywords.set(L"print", 19);
-	keywords.set(L"Program", 23);
+	keywords.set(L"Zoso", 23);
 
 
 	tvalLength = 128;

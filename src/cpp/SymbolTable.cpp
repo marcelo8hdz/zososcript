@@ -8,39 +8,54 @@ namespace Zoso {
 SymbolTable::SymbolTable(Parser* parser): undef(0), integer(1), boolean(2), decimal(3), var(0), function(1), scope(2) {
 	errors = parser -> errors;
 	topScope = NULL;
-	curLevel = -1;
+	currentLevel = -1;
     
 	undefObj = new Obj();
 	undefObj -> name  = coco_string_create("undef"); 
     undefObj -> type = undef; 
     undefObj -> kind = var;
-	undefObj -> adr = 0; 
+	undefObj -> address= 0; 
     undefObj -> level = 0; 
     undefObj -> next = NULL;
 }
 
-// create a new object node in the current scope
+void SymbolTable::OpenScope () {
+	Obj *newScope = new Obj();
+	
+	newScope -> name = coco_string_create(""); 
+	newScope -> kind = scope;
+	newScope -> locals = NULL; 
+	newScope -> nextAddress = 0;
+	newScope -> next = topScope; 
+	topScope = newScope;
+	
+	currentLevel++;
+}
+
+// new object node in current scope 
 Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
-	Obj *p, *last, *obj = new Obj();
+	Obj *topScopeNode, *last, *newObject = new Obj();
 
-	obj -> name = coco_string_create(name); 
-    obj -> kind = kind; 
-    obj -> type = type;
-	obj -> level = curLevel;
+	newObject -> name = coco_string_create(name); 
+    newObject -> kind = kind; 
+    newObject -> type = type;
+	newObject -> level = currentLevel;
 
-	p = topScope -> locals; 
+	topScopeNode = topScope -> locals; 
     last = NULL;
     
-	while (p != NULL) {
-		if (coco_string_equal(p -> name, name)) throw std::invalid_argument("name already declared");
-		last = p; 
-        p = p -> next;
+	while (topScopeNode != NULL) {
+		if (coco_string_equal(topScopeNode -> name, name)) throw std::invalid_argument("name already declared");
+		last = topScopeNode; 
+        topScopeNode = topScopeNode -> next;
 	}
 
-	if (last == NULL) topScope -> locals = obj; 
-    else last -> next = obj;
-	if (kind == var) obj -> adr = topScope -> nextAdr++;
-	return obj;
+	if (last == NULL) topScope -> locals = newObject; 
+    else last -> next = newObject;
+
+	if (kind == var) newObject -> address = topScope -> nextAddress++;
+	
+	return newObject;
 
 }
 

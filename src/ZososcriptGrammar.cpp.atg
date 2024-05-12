@@ -63,9 +63,11 @@ PRODUCTIONS
         )
     .
 
-    FunctionDeclaration = "function" Type<type>  ident '(' { VariableDeclaration } ')' '{' // pass variables
-        { Statement }
-        '}'
+    FunctionDeclaration (. wchar_t* name; int type; .) = 
+        "function" Type<type>  
+        Ident<name> (. symbolTable -> NewObj(name, function, type); .)
+         '(' { VariableDeclaration } ')' 
+         '{' { Statement }'}'
     .
 
     Statement =
@@ -91,9 +93,12 @@ PRODUCTIONS
         | AddOp Factor
     .
 
-    Zoso = "Program" '{' 
-        { Statement }
-        '}'.
+    Zoso (. wchar_t* name; InitDeclarations(); .) = 
+        "Zoso" Ident<name> (. symbolTable -> OpenScope(); .)
+        '{' 
+            { Statement }
+        '}'
+    .
 END Zoso.
 
 /*-------------------

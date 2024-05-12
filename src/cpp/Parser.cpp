@@ -113,9 +113,11 @@ void Parser::Type(int &type) {
 }
 
 void Parser::FunctionDeclaration() {
+		wchar_t* name; int type; 
 		Expect(14 /* "function" */);
 		Type(type);
-		Expect(_ident);
+		Ident(name);
+		symbolTable -> NewObj(name, function, type); 
 		Expect(15 /* "(" */);
 		while (StartOf(1)) {
 			VariableDeclaration();
@@ -199,7 +201,9 @@ void Parser::Factor() {
 }
 
 void Parser::Zoso() {
-		Expect(23 /* "Program" */);
+		wchar_t* name; InitDeclarations(); 
+		Expect(23 /* "Zoso" */);
+		symbolTable -> OpenScope(); 
 		Expect(17 /* "{" */);
 		while (StartOf(2)) {
 			Statement();
@@ -372,7 +376,7 @@ void Errors::SynErr(int line, int col, int n) {
 			case 20: s = coco_string_create(L"\"==\" expected"); break;
 			case 21: s = coco_string_create(L"\"<\" expected"); break;
 			case 22: s = coco_string_create(L"\">\" expected"); break;
-			case 23: s = coco_string_create(L"\"Program\" expected"); break;
+			case 23: s = coco_string_create(L"\"Zoso\" expected"); break;
 			case 24: s = coco_string_create(L"??? expected"); break;
 			case 25: s = coco_string_create(L"invalid AddOp"); break;
 			case 26: s = coco_string_create(L"invalid MulOp"); break;

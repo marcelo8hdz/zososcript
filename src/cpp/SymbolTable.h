@@ -12,23 +12,23 @@ class Errors;
 class Obj {  // object describing a declared name
 public:
 	wchar_t* name;		// name of the object
-	int type;		// type of the object (undef for proc)
-	Obj	*next;		// to next object in same scope
-	int kind;		// var, proc, scope
-	int adr;		// address in memory or start of proc
+	int type;		// type of the object 
+	Obj* next;		// to next object in same scope
+	int kind;		// var, function, scope
+	int address;		// address in memory or start of function
 	int level;		// nesting level; 0=global, 1=local
-	Obj *locals;		// scopes: to locally declared objects
-	int nextAdr;	// scopes: next free address in this scope
+	Obj* locals;		// scopes: to locally declared objects
+	int nextAddress;	// scopes: next free address in this scope
 
 	Obj() {
-		name    = NULL;
-		type    = 0;
-		next    = NULL;
-		kind    = 0;
-		adr     = 0;
-		level   = 0;
-		locals  = NULL;
-		nextAdr = 0;
+		name = NULL;
+		type = 0;
+		next = NULL;
+		kind = 0;
+		address = 0;
+		level = 0;
+		locals = NULL;
+		nextAddress = 0;
 	}
 
 	~Obj() {
@@ -40,14 +40,11 @@ public:
 
 class SymbolTable {
 public:
-	const int // types
-		undef, integer, boolean, decimal;
+	const int undef, integer, boolean, decimal;
 
-	const int // object kinds
-		var, function, scope;
+	const int var, function, scope;
 
-
-	int curLevel;	// nesting level of current scope
+	int currentLevel;	// nesting level of current scope
 	Obj *undefObj;	// object node for erroneous symbols
 	Obj *topScope;	// topmost procedure scope
 
