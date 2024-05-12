@@ -114,13 +114,7 @@ void Parser::Type(int &type) {
 
 void Parser::FunctionDeclaration() {
 		Expect(14 /* "function" */);
-		if (la->kind == 13 /* "void" */) {
-			Get();
-		} else if (la->kind == 12 /* "float" */) {
-			Get();
-		} else if (la->kind == 10 /* "int" */) {
-			Get();
-		} else SynErr(28);
+		Type(type);
 		Expect(_ident);
 		Expect(15 /* "(" */);
 		while (StartOf(1)) {
@@ -156,7 +150,7 @@ void Parser::Statement() {
 			FunctionDeclaration();
 		} else if (StartOf(1)) {
 			VariableDeclaration();
-		} else SynErr(29);
+		} else SynErr(28);
 }
 
 void Parser::Expr() {
@@ -201,7 +195,7 @@ void Parser::Factor() {
 		} else if (la->kind == 4 /* "+" */ || la->kind == 5 /* "-" */) {
 			AddOp();
 			Factor();
-		} else SynErr(30);
+		} else SynErr(29);
 }
 
 void Parser::Zoso() {
@@ -383,9 +377,8 @@ void Errors::SynErr(int line, int col, int n) {
 			case 25: s = coco_string_create(L"invalid AddOp"); break;
 			case 26: s = coco_string_create(L"invalid MulOp"); break;
 			case 27: s = coco_string_create(L"invalid Type"); break;
-			case 28: s = coco_string_create(L"invalid FunctionDeclaration"); break;
-			case 29: s = coco_string_create(L"invalid Statement"); break;
-			case 30: s = coco_string_create(L"invalid Factor"); break;
+			case 28: s = coco_string_create(L"invalid Statement"); break;
+			case 29: s = coco_string_create(L"invalid Factor"); break;
 
 		default:
 		{

@@ -41,10 +41,10 @@ public:
 class SymbolTable {
 public:
 	const int // types
-		undef, integer, boolean;
+		undef, integer, boolean, decimal;
 
 	const int // object kinds
-		var, proc, scope;
+		var, function, scope;
 
 
 	int curLevel;	// nesting level of current scope

@@ -52,7 +52,7 @@ public:
 	Token *t;			// last recognized token
 	Token *la;			// lookahead token
 
-int integer, boolean; // types
+int undef, integer, boolean, decimal; // types
     int var, function; //Object Kinds
 
 
@@ -78,6 +78,7 @@ int integer, boolean; // types
 	void AddOp();
 	void MulOp();
 	void VariableDeclaration();
+	void Type(int &type);
 	void FunctionDeclaration();
 	void Statement();
 	void Expr();
