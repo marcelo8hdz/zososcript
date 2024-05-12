@@ -1,12 +1,13 @@
 //#domain
 //cpp imports here
+#include "SymbolTable.h"
 //#enddomain
 
 COMPILER Zoso
 
     // int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operators
-    // int integer, boolean; // types
-    // int var, function; //Object Kinds
+    int undef, integer, boolean, decimal; // types
+    int var, function; //Object Kinds
 
 
     // int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN; // operation codes
@@ -19,7 +20,7 @@ COMPILER Zoso
     //     // Operational Codes
     //     ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
     // }
-    // SymbolTable *symbolTable;
+    SymbolTable *symbolTable;
 
 CHARACTERS
     letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
@@ -38,17 +39,31 @@ TOKENS
 IGNORE cr + lf + tab + space
 
 PRODUCTIONS
-    // Id <wchar* &name> = 
-    //     ident (. name = coco_string_create(t -> val); .)
-    // .
+    Ident <wchar_t* &name> = 
+        ident (. name = coco_string_create(t -> val); .)
+    .
 
     AddOp = '+' | '-'.
 
     MulOp = '*' | '/'.
 
-    VariableDeclaration = ("void" | "float" | "int")  ident {',' ident} ';'.
+    VariableDeclaration (. wchar_t* name; int type; .) = 
+        Type<type>
+        Ident<name> (. symbolTable -> NewObj(name, var, type); .)
+        {',' Ident<name> (. symbolTable -> NewObj(name, var, type); .) } 
+        ';'
+        
+    .
+    Type<int &type> =                        
+        ( 
+            "int" (. type = integer; .)
+            | "bool" (. type = boolean; .)
+            | "float" (. type = decimal; .)
+            | "void" (. type = undef; .)
+        )
+    .
 
-    FunctionDeclaration = "function" ("void" | "float" | "int")  ident '(' { VariableDeclaration } ')' '{' // pass variables
+    FunctionDeclaration = "function" Type<type>  ident '(' { VariableDeclaration } ')' '{' // pass variables
         { Statement }
         '}'
     .

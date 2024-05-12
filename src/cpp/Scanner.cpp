@@ -421,8 +421,8 @@ Scanner::~Scanner() {
 void Scanner::Init() {
 	EOL    = '\n';
 	eofSym = 0;
-	maxT = 23;
-	noSym = 23;
+	maxT = 24;
+	noSym = 24;
 	int i;
 	for (i = 48; i <= 57; ++i) start.set(i, 1);
 	for (i = 65; i <= 90; ++i) start.set(i, 2);
@@ -442,12 +442,13 @@ void Scanner::Init() {
 	start.set(60, 17);
 	start.set(62, 18);
 		start.set(Buffer::EoF, -1);
-	keywords.set(L"void", 8);
-	keywords.set(L"float", 9);
 	keywords.set(L"int", 10);
-	keywords.set(L"function", 13);
-	keywords.set(L"print", 18);
-	keywords.set(L"Program", 22);
+	keywords.set(L"bool", 11);
+	keywords.set(L"float", 12);
+	keywords.set(L"void", 13);
+	keywords.set(L"function", 14);
+	keywords.set(L"print", 19);
+	keywords.set(L"Program", 23);
 
 
 	tvalLength = 128;
@@ -610,27 +611,27 @@ Token* Scanner::NextToken() {
 		case 8:
 			{t->kind = 7; break;}
 		case 9:
-			{t->kind = 11; break;}
+			{t->kind = 8; break;}
 		case 10:
-			{t->kind = 12; break;}
+			{t->kind = 9; break;}
 		case 11:
-			{t->kind = 14; break;}
-		case 12:
 			{t->kind = 15; break;}
-		case 13:
+		case 12:
 			{t->kind = 16; break;}
-		case 14:
+		case 13:
 			{t->kind = 17; break;}
+		case 14:
+			{t->kind = 18; break;}
 		case 15:
 			if (ch == L'=') {AddCh(); goto case_16;}
 			else {goto case_0;}
 		case 16:
 			case_16:
-			{t->kind = 19; break;}
-		case 17:
 			{t->kind = 20; break;}
-		case 18:
+		case 17:
 			{t->kind = 21; break;}
+		case 18:
+			{t->kind = 22; break;}
 
 	}
 	AppendVal(t);
