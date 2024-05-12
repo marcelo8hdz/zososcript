@@ -203,6 +203,7 @@ void Parser::Factor() {
 void Parser::Zoso() {
 		wchar_t* name; InitDeclarations(); 
 		Expect(23 /* "Zoso" */);
+		Ident(name);
 		symbolTable -> OpenScope(); 
 		Expect(17 /* "{" */);
 		while (StartOf(2)) {
