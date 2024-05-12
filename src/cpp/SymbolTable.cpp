@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 namespace Zoso {
+
 SymbolTable::SymbolTable(Parser *parser): undef(0), integer(1), boolean(2), var(0), proc(1), scope(2) {
 	errors = parser -> errors;
 	topScope = NULL;
@@ -16,8 +17,8 @@ SymbolTable::SymbolTable(Parser *parser): undef(0), integer(1), boolean(2), var(
 	undefObj -> adr = 0; 
     undefObj -> level = 0; 
     undefObj -> next = NULL;
-
 }
+
 // create a new object node in the current scope
 Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
 	Obj *p, *last, *obj = new Obj();
@@ -42,6 +43,5 @@ Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
 	return obj;
 
 }
-
 
 }

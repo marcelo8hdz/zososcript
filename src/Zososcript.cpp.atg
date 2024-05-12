@@ -6,7 +6,7 @@
 
 COMPILER Zoso
     int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operators
-    int void, integer, boolean, float; // types
+    int void, integer, boolean; // types
     int var, function; //Object Kinds
 
 
@@ -161,7 +161,6 @@ Type<int &type> =
     ( 
         "int" (. type = integer; .)
         | "bool" (. type = boolean; .)
-        | "float" (. type = float; .)
     ).
 /*Declare Variables---------------------------------------------------------*/
 VarDecl(. wchar_t* name; int type; .) = 

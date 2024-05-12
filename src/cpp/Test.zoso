@@ -3,8 +3,10 @@ Program {
 
        
 
-    int variable;
-    float instagram;
-    void whatsapp, w, w, w;
+    int: variable;
+    float: instagram;
+    void: whatsapp, w, w, w;
     ident;
+    function void: arg(int: fff,fff,f; float: asdfas,asdfas;){}
+
 }

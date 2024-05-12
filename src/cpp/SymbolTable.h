@@ -38,8 +38,7 @@ public:
 
 };
 
-class SymbolTable
-{
+class SymbolTable {
 public:
 	const int // types
 		undef, integer, boolean;
