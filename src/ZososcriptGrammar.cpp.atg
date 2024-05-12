@@ -46,13 +46,13 @@ PRODUCTIONS
 
     MulOp = '*' | '/'.
 
-    VariableDeclaration = ("void" | "float" | "int") ':' ident {',' ident} ';'.
+    VariableDeclaration = ("void" | "float" | "int")  ident {',' ident} ';'.
 
-    FunctionDeclaration = "function" ("void" | "float" | "int") ':' ident '(' { VariableDeclaration } ')' '{' // pass variables
+    FunctionDeclaration = "function" ("void" | "float" | "int")  ident '(' { VariableDeclaration } ')' '{' // pass variables
         { Statement }
         '}'
     .
-    
+
     Statement =
         "print" '(' { Expr | SimExpr | string } ')' ';' 
         | Expr ';'
@@ -86,5 +86,7 @@ END Zoso.
 TODO:
 function call
 variable assignation
+
+function void works so its not ignoring spacebars try remove ':' from var / func declaration
 
 -----------------------------------------------------*/
