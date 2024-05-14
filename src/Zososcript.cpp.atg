@@ -1,178 +1,131 @@
 //#domain
+//cpp imports here
 #include "SymbolTable.h"
-#include "CodeGenerator.h"
 #include "wchar.h"
 //#enddomain
 
 COMPILER Zoso
-    int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operators
-    int void, integer, boolean; // types
+
+    // int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operators
+    int undef, integer, boolean, decimal; // types
     int var, function; //Object Kinds
 
 
-    int ADD, SUB, MUL, DIV, EQU, LSS, EQU, GTR, ASSIGN; // operation codes
+    // int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN; // operation codes
 
     void InitDeclarations() {
-        plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7
-        void = 0, integer = 1, boolean = 2;
+        // plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7
+        integer = 1, boolean = 2, decimal = 3;
         var = 0, function = 1;
 
-        // Operational Codes
-        ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5 GTR = 6, ASSIGN = 7;
+    //     // Operational Codes
+    //     ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
     }
-/*--------------------------------------------------------------------------*/
+    SymbolTable *symbolTable;
+
 CHARACTERS
     letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
     digit = "0123456789".
-/*--------------------------------------------------------------------------*/
+    quote = '\"'.
+    cr  = '\r'.
+    lf  = '\n'.
+    tab = '\t'.
+    space = ' '.
+
 TOKENS
-    id = letter { letter | digit }.
-    number = digit { digit }.
-/*Add or Substract----------------------------------------------------------*/
+    number = digit { digit } [ '.'] { digit }.
+    ident = letter { letter | digit }.
+    string = quote { letter | digit } quote.
+
+IGNORE cr + lf + tab + space
+
 PRODUCTIONS
-AddOp<int &op> = (. op = -1; .) ( '+' (. op = plus; .) | '-' (. op = minus; .)).
-/*Expression-----------------------------------------------------------------*/
-Expr<int &type> (. int type1, op; .) = SimExpr<type> [ 
-    RelOp<op> SimExpr<type1> (. if (type != type1) Err(L"incompatible types");
-    gen->Emit(op); type = boolean; .)
-].
-/*Factor---------------------------------------------------------------------*/
-Factor<int &type> (. int n; Obj *obj; wchar_t* name; .) =
-    (. type = undef; .)
-    (Id<name> (.
-        obj = tab -> Find(name); 
-        type = obj -> type;
-        if (obj -> kind == var) {
-            if (obj -> level == 0) gen -> Emit(LOADG, obj->adr);
-            else gen->Emit(LOAD, obj->adr);
-        } else Err(L"expected variable"); 
-    .)
-    | number (. swscanf(t->val, L"%d", &n);	//n = Convert.ToInt32(t->val); 
-        gen->Emit(CONST, n); type = integer; 
-    .)
-    | '-' Factor<type> (. 
-        if (type != integer) {
-            Err(L"expected type integer"); type = integer;
-        }
-        gen->Emit(NEG); .)
-    | "true" (. gen->Emit(CONST, 1); type = boolean; .)
-    | "false" (. gen->Emit(CONST, 0); type = boolean; .)
-  ).
-/*Id---------------------------------------------------------------------*/
-Id<wchar_t* &name> = id(. name = coco_string_create(t -> val); .).
-/*Multiplication or Division---------------------------------------------*/
-MulOp<int &op> =  
-    (. op = -1; .)
-    ( 
-        '*' (. op = times; .)
-        | '/' (. op = slash; .)
-    ).
-/*Declare Functions--------------------------------------------------------------*/
-ProcDecl(. wchar_t* name; Obj *obj; int adr; .) = 
-    "void"
-    Id<name> (. 
-        obj = tab -> NewObj(name, proc, undef); obj -> adr = gen -> pc;
-        if (coco_string_equal(name, L"Main")) gen->progStart = gen -> pc; 
-        tab -> OpenScope(); 
-    .)
-    '(' ')' '{' (. gen -> Emit(ENTER, 0); adr = gen->pc - 2; .) { VarDecl | Stat } '}' (. gen->Emit(LEAVE); gen->Emit(RET);
-    gen -> Patch(adr, tab -> topScope -> nextAdr);
-    tab->CloseScope(); .).
-/*Comparison-------------------------------------------------------------*/
-RelOp<int &op> =                        
-    (. op = -1; .)
-    (
-        "==" (. op = equals; .)
-        | '<' (. op = lessThan; .)
-        | '>' (. op = greaterThan; .)
-    ).
-/*-------------------------------------------------------------------*/
-SimExpr<int &type> (. int type1, op; .) = 
-    Term<type> { 
-        AddOp<op>
-        Term<type1>      
-        (. 
-            if (type != integer || type1 != integer) Err(L"expected type integer");
-            gen -> Emit(op); 
-        .)
-	}.
-/*---------------------------------------------------------------------*/
-Stat(. int type; wchar_t* name; Obj *obj; int adr, adr2, loopstart; .) =
-    //Declare Variable
-    Id<name> (. obj = tab -> Find(name); .)
-    ( 
-        '=' (. if (obj->kind != var) Err(L"assign to a function"); .)
-        Expr<type> ';'
-        (. 
-            if (type != obj->type) Err(L"Type not Compatible");
-            if (obj->level == 0) gen->Emit(STOG, obj->adr);
-            else gen->Emit(STO, obj->adr); 
-        .)
-        | '(' ')' ';' 
-        (. 
-            if (obj->kind != proc) Err(L"object is not a procedure");
-            gen -> Emit(CALL, obj->adr); 
-        .)
-	)
-//If case
-| "if" '(' Expr<type> ')' 
-    (. 
-        if (type != boolean) Err(L"boolean type expected");
-        gen -> Emit(FJMP, 0); 
-        adr = gen->pc - 2; 
-    .)
-	Stat
-	[ "else" (. 
-            gen -> Emit(JMP, 0); adr2 = gen->pc - 2;
-            gen -> Patch(adr, gen->pc);
-            adr = adr2; 
-        .)
-		Stat 
-	]                      
-    (. gen->Patch(adr, gen->pc); .)
+    Ident <wchar_t* &name> = 
+        ident (. name = coco_string_create(t -> val); .)
+    .
 
-| "read" Id<name> ';' 
-    (. 
-        obj = tab->Find(name);
-        if (obj->type != integer) Err(L"expected type integer");
-        gen->Emit(READ);
-        if (obj->level == 0) gen->Emit(STOG, obj->adr);
-        else gen->Emit(STO, obj->adr); 
-    .)
+    AddOp = '+' | '-'.
 
-| "write" Expr<type> ';' (. 
-    if (type != integer) Err(L"integer type expected");
-    gen->Emit(WRITE); 
-.)
-//Brackets
-| '{' { Stat | VarDecl } '}' .
-/*Declare Terms-----------------------------------------------------------*/
-Term<int &type> (. int type1, op; .)= 
-    Factor<type> { 
-        MulOp<op> Factor<type1> 
-        (. 
-            if (type != integer || type1 != integer) Err(L"expected type integer");
-            gen->Emit(op);
+    MulOp = '*' | '/'.
+
+    VariableDeclaration (. wchar_t* name; int type; .) = 
+        Type<type>
+        Ident<name> (. symbolTable -> NewObj(name, var, type); .)
+        {',' Ident<name> (. symbolTable -> NewObj(name, var, type); .) } 
+        ';'
+        
+    .
+    Type<int &type> =                        
+        ( 
+            "int" (. type = integer; .)
+            | "bool" (. type = boolean; .)
+            | "float" (. type = decimal; .)
+            | "void" (. type = undef; .)
+        )
+    .
+
+    FunctionDeclaration (. wchar_t* name; int type; .) = 
+        "function" Type<type>  
+        Ident<name> (. symbolTable -> NewObj(name, function, type); .)
+         '(' { VariableDeclaration } ')' 
+         '{' { Statement }'}'
+    .
+
+    Statement (. int type; .)=
+        | Expr<type> 
+        | FunctionDeclaration
+        | VariableDeclaration
+    .
+
+    Expr<int& type> (. int nextType; .) = 
+        SimExpr<type> [ ( "==" | '<' | '>' ) SimExpr<nextType> ] ';'.
+
+    SimExpr<int& type> (. int nextType; .) =  
+        Term<type> {
+            AddOp Term<nextType> (. 
+                if (type != integer || nextType != integer) throw std::invalid_argument("integer type expected"); // add float logic
+            .)
+        }.
+
+    Term<int &type> (. int nextType; .) =
+        Factor<type> {
+            MulOp Factor<nextType> (. 
+                if (type != integer || nextType != integer) throw std::invalid_argument("integer type expected"); // add float logic
+            .)
+        }.
+
+    Factor<int &type> (. wchar_t* name;  Obj* obj;  int numberReference;.) =
+        (. type = undef; .)
+        number (. swscanf(t -> val, L"%d", &numberReference); .) // convert to int
+        | Ident<name> (.
+            obj = symbolTable -> Find(name);
+            type = obj -> type;
+            if (obj -> kind != var) throw std::invalid_argument("identifier undeclared"); 
         .)
-	}.
-/*Declare Types---------------------------------------------------------------*/
-Type<int &type> =
-    (. type = void; .)
-    ( 
-        "int" (. type = integer; .)
-        | "bool" (. type = boolean; .)
-    ).
-/*Declare Variables---------------------------------------------------------*/
-VarDecl(. wchar_t* name; int type; .) = 
-    Type<type> Id<name> (. tab->NewObj(name, var, type); .)
-    { ',' Id<name>      (. tab->NewObj(name, var, type); .)} ';'.
-/*Program---------------------------------------------------------------*/
-Zoso(. wchar_t* name; InitDeclarations(); .) = "program"
-    Id<name> (. tab->OpenScope(); .)
-    '{'
-        { VarDecl }
-        { ProcDecl }
-    '}'                    
-    (. tab->CloseScope(); .).
-/*---------------------------------------------------------------------*/
+        | '(' SimExpr<type> ')' 
+        | '-' Factor<type>
+    .
+
+    Zoso (. wchar_t* name; InitDeclarations(); .) = 
+        "Zoso" Ident<name> (. symbolTable -> OpenScope(); .)
+        '{' 
+            { Statement }
+        '}'
+        (. symbolTable -> CloseScope(); .)
+    .
 END Zoso.
+
+/*-------------------
+
+TODO:
+function call
+variable assignation
+add floats
+change function declared variables scope
+
+print shouldn't be in grammar? its more like its own method
+symbolTable find method find error when undeclared
+logical operations
+
+
+-----------------------------------------------------*/

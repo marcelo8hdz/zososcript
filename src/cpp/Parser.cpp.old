@@ -72,7 +72,7 @@ void Parser::AddOp() {
 			Get();
 		} else if (la->kind == 5 /* "-" */) {
 			Get();
-		} else SynErr(25);
+		} else SynErr(24);
 }
 
 void Parser::MulOp() {
@@ -80,7 +80,7 @@ void Parser::MulOp() {
 			Get();
 		} else if (la->kind == 7 /* "/" */) {
 			Get();
-		} else SynErr(26);
+		} else SynErr(25);
 }
 
 void Parser::VariableDeclaration() {
@@ -109,7 +109,7 @@ void Parser::Type(int &type) {
 		} else if (la->kind == 13 /* "void" */) {
 			Get();
 			type = undef; 
-		} else SynErr(27);
+		} else SynErr(26);
 }
 
 void Parser::FunctionDeclaration() {
@@ -131,78 +131,80 @@ void Parser::FunctionDeclaration() {
 }
 
 void Parser::Statement() {
-		if (la->kind == 19 /* "print" */) {
-			Get();
-			Expect(15 /* "(" */);
-			while (StartOf(3)) {
-				if (StartOf(4)) {
-					Expr();
-				} else if (StartOf(4)) {
-					SimExpr();
-				} else {
-					Get();
-				}
-			}
-			Expect(16 /* ")" */);
-			Expect(9 /* ";" */);
-		} else if (StartOf(4)) {
-			Expr();
-			Expect(9 /* ";" */);
+		int type; 
+		if (StartOf(2)) {
+		} else if (StartOf(3)) {
+			Expr(type);
 		} else if (la->kind == 14 /* "function" */) {
 			FunctionDeclaration();
 		} else if (StartOf(1)) {
 			VariableDeclaration();
-		} else SynErr(28);
+		} else SynErr(27);
 }
 
-void Parser::Expr() {
-		SimExpr();
-		if (la->kind == 20 /* "==" */ || la->kind == 21 /* "<" */ || la->kind == 22 /* ">" */) {
-			if (la->kind == 20 /* "==" */) {
+void Parser::Expr(int& type) {
+		int nextType; 
+		SimExpr(type);
+		if (la->kind == 19 /* "==" */ || la->kind == 20 /* "<" */ || la->kind == 21 /* ">" */) {
+			if (la->kind == 19 /* "==" */) {
 				Get();
-			} else if (la->kind == 21 /* "<" */) {
+			} else if (la->kind == 20 /* "<" */) {
 				Get();
 			} else {
 				Get();
 			}
-			SimExpr();
+			SimExpr(nextType);
 		}
+		Expect(9 /* ";" */);
 }
 
-void Parser::SimExpr() {
-		Term();
+void Parser::SimExpr(int& type) {
+		int nextType; 
+		Term(type);
 		while (la->kind == 4 /* "+" */ || la->kind == 5 /* "-" */) {
 			AddOp();
-			Term();
+			Term(nextType);
+			if (type != integer || nextType != integer) throw std::invalid_argument("integer type expected"); // add float logic
+			
 		}
 }
 
-void Parser::Term() {
-		Factor();
+void Parser::Term(int &type) {
+		int nextType; 
+		Factor(type);
 		while (la->kind == 6 /* "*" */ || la->kind == 7 /* "/" */) {
 			MulOp();
-			Factor();
+			Factor(nextType);
+			if (type != integer || nextType != integer) throw std::invalid_argument("integer type expected"); // add float logic
+			
 		}
 }
 
-void Parser::Factor() {
+void Parser::Factor(int &type) {
+		wchar_t* name;  Obj* obj;  int numberReference;
 		if (la->kind == _number) {
+			type = undef; 
 			Get();
+			swscanf(t -> val, L"%d", &numberReference); 
 		} else if (la->kind == _ident) {
-			Get();
+			Ident(name);
+			obj = symbolTable -> Find(name);
+			type = obj -> type;
+			if (obj -> kind != var) throw std::invalid_argument("identifier undeclared"); 
+			
 		} else if (la->kind == 15 /* "(" */) {
 			Get();
-			Expr();
+			SimExpr(type);
 			Expect(16 /* ")" */);
-		} else if (la->kind == 4 /* "+" */ || la->kind == 5 /* "-" */) {
-			AddOp();
-			Factor();
-		} else SynErr(29);
+		} else if (la->kind == 5 /* "-" */) {
+			Get();
+			Factor(type);
+		} else SynErr(28);
 }
 
 void Parser::Zoso() {
 		wchar_t* name; InitDeclarations(); 
-		Expect(23 /* "Zoso" */);
+		Expect(22 /* "Zoso" */);
 		Ident(name);
 		symbolTable -> OpenScope(); 
 		Expect(17 /* "{" */);
@@ -210,6 +212,7 @@ void Parser::Zoso() {
 			Statement();
 		}
 		Expect(18 /* "}" */);
+		symbolTable -> CloseScope(); 
 }
 
 
@@ -313,7 +316,7 @@ void Parser::Parse() {
 }
 
 Parser::Parser(Scanner *scanner) {
-	maxT = 24;
+	maxT = 23;
 
 	ParserInitCaller<Parser>::CallInit(this);
 	dummyToken = NULL;
@@ -328,12 +331,11 @@ bool Parser::StartOf(int s) {
 	const bool T = true;
 	const bool x = false;
 
-	static bool set[5][26] = {
-		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x},
-		{x,x,x,x, x,x,x,x, x,x,T,T, T,T,x,x, x,x,x,x, x,x,x,x, x,x},
-		{x,T,T,x, T,T,x,x, x,x,T,T, T,T,T,T, x,x,x,T, x,x,x,x, x,x},
-		{x,T,T,T, T,T,x,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x,x},
-		{x,T,T,x, T,T,x,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x,x}
+	static bool set[4][25] = {
+		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x},
+		{x,x,x,x, x,x,x,x, x,x,T,T, T,T,x,x, x,x,x,x, x,x,x,x, x},
+		{x,T,T,x, x,T,x,x, x,x,T,T, T,T,T,T, x,x,T,x, x,x,x,x, x},
+		{x,T,T,x, x,T,x,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x}
 	};
 
 
@@ -373,17 +375,16 @@ void Errors::SynErr(int line, int col, int n) {
 			case 16: s = coco_string_create(L"\")\" expected"); break;
 			case 17: s = coco_string_create(L"\"{\" expected"); break;
 			case 18: s = coco_string_create(L"\"}\" expected"); break;
-			case 19: s = coco_string_create(L"\"print\" expected"); break;
-			case 20: s = coco_string_create(L"\"==\" expected"); break;
-			case 21: s = coco_string_create(L"\"<\" expected"); break;
-			case 22: s = coco_string_create(L"\">\" expected"); break;
-			case 23: s = coco_string_create(L"\"Zoso\" expected"); break;
-			case 24: s = coco_string_create(L"??? expected"); break;
-			case 25: s = coco_string_create(L"invalid AddOp"); break;
-			case 26: s = coco_string_create(L"invalid MulOp"); break;
-			case 27: s = coco_string_create(L"invalid Type"); break;
-			case 28: s = coco_string_create(L"invalid Statement"); break;
-			case 29: s = coco_string_create(L"invalid Factor"); break;
+			case 19: s = coco_string_create(L"\"==\" expected"); break;
+			case 20: s = coco_string_create(L"\"<\" expected"); break;
+			case 21: s = coco_string_create(L"\">\" expected"); break;
+			case 22: s = coco_string_create(L"\"Zoso\" expected"); break;
+			case 23: s = coco_string_create(L"??? expected"); break;
+			case 24: s = coco_string_create(L"invalid AddOp"); break;
+			case 25: s = coco_string_create(L"invalid MulOp"); break;
+			case 26: s = coco_string_create(L"invalid Type"); break;
+			case 27: s = coco_string_create(L"invalid Statement"); break;
+			case 28: s = coco_string_create(L"invalid Factor"); break;
 
 		default:
 		{

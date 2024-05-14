@@ -210,6 +210,7 @@ void Parser::Zoso() {
 			Statement();
 		}
 		Expect(18 /* "}" */);
+		symbolTable -> CloseScope(); 
 }
 
 

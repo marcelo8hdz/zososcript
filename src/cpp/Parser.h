@@ -4,6 +4,7 @@
 #define Zoso_COCO_PARSER_H__
 
 #include "SymbolTable.h"
+#include "wchar.h"
 
 
 #include "Scanner.h"
@@ -60,7 +61,7 @@ int undef, integer, boolean, decimal; // types
 
     void InitDeclarations() {
         // plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7
-        integer = 1, boolean = 2;
+        integer = 1, boolean = 2, decimal = 3;
         var = 0, function = 1;
 
     //     // Operational Codes

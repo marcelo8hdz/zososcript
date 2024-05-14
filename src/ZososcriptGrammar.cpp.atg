@@ -1,6 +1,7 @@
 //#domain
 //cpp imports here
 #include "SymbolTable.h"
+#include "wchar.h"
 //#enddomain
 
 COMPILER Zoso
@@ -14,7 +15,7 @@ COMPILER Zoso
 
     void InitDeclarations() {
         // plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7
-        integer = 1, boolean = 2;
+        integer = 1, boolean = 2, decimal = 3;
         var = 0, function = 1;
 
     //     // Operational Codes
@@ -32,7 +33,7 @@ CHARACTERS
     space = ' '.
 
 TOKENS
-    number = digit { digit }.
+    number = digit { digit } [ '.'] { digit }.
     ident = letter { letter | digit }.
     string = quote { letter | digit } quote.
 
@@ -98,6 +99,7 @@ PRODUCTIONS
         '{' 
             { Statement }
         '}'
+        (. symbolTable -> CloseScope(); .)
     .
 END Zoso.
 
@@ -106,7 +108,12 @@ END Zoso.
 TODO:
 function call
 variable assignation
+add floats
+change function declared variables scope
 
-function void works so its not ignoring spacebars try remove ':' from var / func declaration
+print shouldn't be in grammar? its more like its own method
+symbolTable find method find error when undeclared
+logical operations
+
 
 -----------------------------------------------------*/

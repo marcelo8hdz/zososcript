@@ -421,34 +421,33 @@ Scanner::~Scanner() {
 void Scanner::Init() {
 	EOL    = '\n';
 	eofSym = 0;
-	maxT = 24;
-	noSym = 24;
+	maxT = 23;
+	noSym = 23;
 	int i;
 	for (i = 48; i <= 57; ++i) start.set(i, 1);
-	for (i = 65; i <= 90; ++i) start.set(i, 2);
-	for (i = 97; i <= 122; ++i) start.set(i, 2);
-	for (i = 34; i <= 34; ++i) start.set(i, 3);
-	start.set(43, 5);
-	start.set(45, 6);
-	start.set(42, 7);
-	start.set(47, 8);
-	start.set(44, 9);
-	start.set(59, 10);
-	start.set(40, 11);
-	start.set(41, 12);
-	start.set(123, 13);
-	start.set(125, 14);
-	start.set(61, 15);
-	start.set(60, 17);
-	start.set(62, 18);
+	for (i = 65; i <= 90; ++i) start.set(i, 3);
+	for (i = 97; i <= 122; ++i) start.set(i, 3);
+	for (i = 34; i <= 34; ++i) start.set(i, 4);
+	start.set(43, 7);
+	start.set(45, 8);
+	start.set(42, 9);
+	start.set(47, 10);
+	start.set(44, 11);
+	start.set(59, 12);
+	start.set(40, 13);
+	start.set(41, 14);
+	start.set(123, 15);
+	start.set(125, 16);
+	start.set(61, 17);
+	start.set(60, 19);
+	start.set(62, 20);
 		start.set(Buffer::EoF, -1);
 	keywords.set(L"int", 10);
 	keywords.set(L"bool", 11);
 	keywords.set(L"float", 12);
 	keywords.set(L"void", 13);
 	keywords.set(L"function", 14);
-	keywords.set(L"print", 19);
-	keywords.set(L"Zoso", 23);
+	keywords.set(L"Zoso", 22);
 
 
 	tvalLength = 128;
@@ -585,53 +584,64 @@ Token* Scanner::NextToken() {
 			t->kind = recKind; break;
 		} // NextCh already done
 		case 1:
-			case_1:
 			recEnd = pos; recKind = 1;
-			if ((ch >= L'0' && ch <= L'9')) {AddCh(); goto case_1;}
+			if ((ch >= L'0' && ch <= L'9')) {AddCh(); goto case_6;}
+			else if (ch == L'.') {AddCh(); goto case_2;}
 			else {t->kind = 1; break;}
 		case 2:
 			case_2:
-			recEnd = pos; recKind = 2;
-			if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_2;}
-			else {t->kind = 2; wchar_t *literal = coco_string_create(tval, 0, tlen); t->kind = keywords.get(literal, t->kind); coco_string_delete(literal); break;}
+			recEnd = pos; recKind = 1;
+			if ((ch >= L'0' && ch <= L'9')) {AddCh(); goto case_2;}
+			else {t->kind = 1; break;}
 		case 3:
 			case_3:
-			if (ch == L'"') {AddCh(); goto case_4;}
-			else if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_3;}
-			else {goto case_0;}
+			recEnd = pos; recKind = 2;
+			if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_3;}
+			else {t->kind = 2; wchar_t *literal = coco_string_create(tval, 0, tlen); t->kind = keywords.get(literal, t->kind); coco_string_delete(literal); break;}
 		case 4:
 			case_4:
-			{t->kind = 3; break;}
-		case 5:
-			{t->kind = 4; break;}
-		case 6:
-			{t->kind = 5; break;}
-		case 7:
-			{t->kind = 6; break;}
-		case 8:
-			{t->kind = 7; break;}
-		case 9:
-			{t->kind = 8; break;}
-		case 10:
-			{t->kind = 9; break;}
-		case 11:
-			{t->kind = 15; break;}
-		case 12:
-			{t->kind = 16; break;}
-		case 13:
-			{t->kind = 17; break;}
-		case 14:
-			{t->kind = 18; break;}
-		case 15:
-			if (ch == L'=') {AddCh(); goto case_16;}
+			if (ch == L'"') {AddCh(); goto case_5;}
+			else if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_4;}
 			else {goto case_0;}
+		case 5:
+			case_5:
+			{t->kind = 3; break;}
+		case 6:
+			case_6:
+			recEnd = pos; recKind = 1;
+			if ((ch >= L'0' && ch <= L'9')) {AddCh(); goto case_6;}
+			else if (ch == L'.') {AddCh(); goto case_2;}
+			else {t->kind = 1; break;}
+		case 7:
+			{t->kind = 4; break;}
+		case 8:
+			{t->kind = 5; break;}
+		case 9:
+			{t->kind = 6; break;}
+		case 10:
+			{t->kind = 7; break;}
+		case 11:
+			{t->kind = 8; break;}
+		case 12:
+			{t->kind = 9; break;}
+		case 13:
+			{t->kind = 15; break;}
+		case 14:
+			{t->kind = 16; break;}
+		case 15:
+			{t->kind = 17; break;}
 		case 16:
-			case_16:
-			{t->kind = 20; break;}
+			{t->kind = 18; break;}
 		case 17:
-			{t->kind = 21; break;}
+			if (ch == L'=') {AddCh(); goto case_18;}
+			else {goto case_0;}
 		case 18:
-			{t->kind = 22; break;}
+			case_18:
+			{t->kind = 19; break;}
+		case 19:
+			{t->kind = 20; break;}
+		case 20:
+			{t->kind = 21; break;}
 
 	}
 	AppendVal(t);

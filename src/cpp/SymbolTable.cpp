@@ -6,6 +6,8 @@
 namespace Zoso {
 
 SymbolTable::SymbolTable(Parser* parser): undef(0), integer(1), boolean(2), decimal(3), var(0), function(1), scope(2) {
+	std::cout << "symbolTable constructor" << std::endl;
+
 	errors = parser -> errors;
 	topScope = NULL;
 	currentLevel = -1;
@@ -20,6 +22,7 @@ SymbolTable::SymbolTable(Parser* parser): undef(0), integer(1), boolean(2), deci
 }
 
 void SymbolTable::OpenScope () {
+	std::cout << "symbolTable open scope" << std::endl;
 	Obj *newScope = new Obj();
 	
 	newScope -> name = coco_string_create(""); 
@@ -32,8 +35,14 @@ void SymbolTable::OpenScope () {
 	currentLevel++;
 }
 
+void SymbolTable::CloseScope () {
+	std::cout << "symbolTable close scope" << std::endl;
+	topScope = topScope -> next; 
+	currentLevel--;
+}
 // new object node in current scope 
 Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
+	std::cout << "symbolTable new object" << std::endl;
 	Obj *topScopeNode, *last, *newObject = new Obj();
 
 	newObject -> name = coco_string_create(name); 
@@ -45,6 +54,7 @@ Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
     last = NULL;
     
 	while (topScopeNode != NULL) {
+		std::cout << "symbolTable newObject while" << std::endl;
 		if (coco_string_equal(topScopeNode -> name, name)) throw std::invalid_argument("name already declared");
 		last = topScopeNode; 
         topScopeNode = topScopeNode -> next;
@@ -58,5 +68,29 @@ Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
 	return newObject;
 
 }
+
+Obj* SymbolTable::Find (wchar_t* name) {
+	Obj *obj, *scope;
+	scope = topScope;
+	
+	while (scope != NULL) {  // for all open scopes
+		obj = scope->locals;
+		while (obj != NULL) {  // for all objects in this scope
+			if (coco_string_equal(obj->name, name)) return obj;
+			obj = obj->next;
+		}
+		scope = scope->next;
+	}
+
+	wchar_t str[100];
+	std::wstring wstr(str);
+
+	coco_swprintf(str, 100, L"%ls is undeclared", name);
+	
+	throw std::invalid_argument("Tried to find undeclared variable"); // name is undeclared
+	
+	return undefObj;
+}
+
 
 }
