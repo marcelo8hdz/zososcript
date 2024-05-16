@@ -52,9 +52,8 @@ PRODUCTIONS
         Type<type>
         Ident<name> (. symbolTable -> NewObj(name, var, type); .)
         {',' Ident<name> (. symbolTable -> NewObj(name, var, type); .) } 
-        ';'
-        
     .
+
     Type<int &type> =                        
         ( 
             "int" (. type = integer; .)
@@ -67,19 +66,21 @@ PRODUCTIONS
     FunctionDeclaration (. wchar_t* name; int type; .) = 
         "function" Type<type>  
         Ident<name> (. symbolTable -> NewObj(name, function, type); .)
-         '(' { VariableDeclaration } ')' 
+         '(' { VariableDeclaration ';' } ')' 
          '{' { Statement }'}'
     .
 
-    Statement (. int type; .) =
-        "print" '(' { string | Expr<type> } ')' ';' 
+    Statement (. int type; .) = (
+        "print" '(' { string | Expr<type> } ')' 
         | Expr<type> 
         | FunctionDeclaration
         | VariableDeclaration
+    ) ';'
     .
 
     Expr<int& type> (. int nextType; .) = 
-        SimExpr<type> [ ( "==" | '<' | '>' ) SimExpr<nextType> ] ';'.
+        SimExpr<type> [ ( "==" | '<' | '>' ) SimExpr<nextType> ] 
+    .
 
     SimExpr<int& type> (. int nextType; .) =  
         Term<type> {
@@ -97,7 +98,7 @@ PRODUCTIONS
 
     Factor<int &type> (. wchar_t* name;  Obj* obj;  int numberReference;.) =
         (. type = undef; .)
-        number (. swscanf(t -> val, L"%d", &numberReference); .) // convert to int
+        number (. type = integer; swscanf(t -> val, L"%d", &numberReference); .) // convert to int
         | Ident<name> (.
             obj = symbolTable -> Find(name);
             type = obj -> type;
@@ -120,15 +121,16 @@ END Zoso.
 
 TODO:
 function call -> hoping this fixes necesity of print in grammar
+
 variable assignation
+
 add floats
-change function declared variables scope
 
 print shouldn't be in grammar? its more like its own method -> grammar gets fucked with out it doe
 
 logical operations
 
-move variable ';' to after expresion to avoid print(VARIABLE_NAME;); ;-> inside parenthesis
+numbers are not being typed correctly
 
 string are not being parsed
 

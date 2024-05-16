@@ -433,8 +433,8 @@ void Scanner::Init() {
 	start.set(42, 9);
 	start.set(47, 10);
 	start.set(44, 11);
-	start.set(59, 12);
-	start.set(40, 13);
+	start.set(40, 12);
+	start.set(59, 13);
 	start.set(41, 14);
 	start.set(123, 15);
 	start.set(125, 16);
@@ -442,11 +442,11 @@ void Scanner::Init() {
 	start.set(60, 19);
 	start.set(62, 20);
 		start.set(Buffer::EoF, -1);
-	keywords.set(L"int", 10);
-	keywords.set(L"bool", 11);
-	keywords.set(L"float", 12);
-	keywords.set(L"void", 13);
-	keywords.set(L"function", 14);
+	keywords.set(L"int", 9);
+	keywords.set(L"bool", 10);
+	keywords.set(L"float", 11);
+	keywords.set(L"void", 12);
+	keywords.set(L"function", 13);
 	keywords.set(L"print", 19);
 	keywords.set(L"Program", 23);
 
@@ -624,7 +624,7 @@ Token* Scanner::NextToken() {
 		case 11:
 			{t->kind = 8; break;}
 		case 12:
-			{t->kind = 9; break;}
+			{t->kind = 14; break;}
 		case 13:
 			{t->kind = 15; break;}
 		case 14:
