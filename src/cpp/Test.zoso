@@ -2,8 +2,12 @@ Program {
     int variable;
     float instagram;
     void whatsapp;
-    print(whatsapp);
     variable + variable;
     12 + 23;
     function void arg(int fff,f; float asdsfas,asdfas;){};
+    function int sum(){};
+    variable + 23;
+    variable + sum() + 23;
+    (variable + sum()) + 44;
+
 }

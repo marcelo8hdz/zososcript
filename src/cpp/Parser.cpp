@@ -72,7 +72,7 @@ void Parser::AddOp() {
 			Get();
 		} else if (la->kind == 5 /* "-" */) {
 			Get();
-		} else SynErr(25);
+		} else SynErr(24);
 }
 
 void Parser::MulOp() {
@@ -80,7 +80,7 @@ void Parser::MulOp() {
 			Get();
 		} else if (la->kind == 7 /* "/" */) {
 			Get();
-		} else SynErr(26);
+		} else SynErr(25);
 }
 
 void Parser::VariableDeclaration() {
@@ -108,7 +108,7 @@ void Parser::Type(int &type) {
 		} else if (la->kind == 12 /* "void" */) {
 			Get();
 			type = undef; 
-		} else SynErr(27);
+		} else SynErr(26);
 }
 
 void Parser::FunctionDeclaration() {
@@ -118,6 +118,7 @@ void Parser::FunctionDeclaration() {
 		Ident(name);
 		symbolTable -> NewObj(name, function, type); 
 		Expect(14 /* "(" */);
+		symbolTable -> OpenScope(); 
 		while (StartOf(1)) {
 			VariableDeclaration();
 			Expect(15 /* ";" */);
@@ -128,38 +129,29 @@ void Parser::FunctionDeclaration() {
 			Statement();
 		}
 		Expect(18 /* "}" */);
+		symbolTable -> CloseScope(); 
 }
 
 void Parser::Statement() {
 		int type; 
-		if (la->kind == 19 /* "print" */) {
-			Get();
-			Expect(14 /* "(" */);
-			while (StartOf(3)) {
-				if (la->kind == _string) {
-					Get();
-				} else {
-					Expr(type);
-				}
-			}
-			Expect(16 /* ")" */);
-		} else if (StartOf(4)) {
+		if (la->kind == 15 /* ";" */) {
+		} else if (StartOf(3)) {
 			Expr(type);
 		} else if (la->kind == 13 /* "function" */) {
 			FunctionDeclaration();
 		} else if (StartOf(1)) {
 			VariableDeclaration();
-		} else SynErr(28);
+		} else SynErr(27);
 		Expect(15 /* ";" */);
 }
 
 void Parser::Expr(int& type) {
 		int nextType; 
 		SimExpr(type);
-		if (la->kind == 20 /* "==" */ || la->kind == 21 /* "<" */ || la->kind == 22 /* ">" */) {
-			if (la->kind == 20 /* "==" */) {
+		if (la->kind == 19 /* "==" */ || la->kind == 20 /* "<" */ || la->kind == 21 /* ">" */) {
+			if (la->kind == 19 /* "==" */) {
 				Get();
-			} else if (la->kind == 21 /* "<" */) {
+			} else if (la->kind == 20 /* "<" */) {
 				Get();
 			} else {
 				Get();
@@ -179,7 +171,7 @@ void Parser::SimExpr(int& type) {
 		}
 }
 
-void Parser::Term(int &type) {
+void Parser::Term(int& type) {
 		int nextType; 
 		Factor(type);
 		while (la->kind == 6 /* "*" */ || la->kind == 7 /* "/" */) {
@@ -190,7 +182,7 @@ void Parser::Term(int &type) {
 		}
 }
 
-void Parser::Factor(int &type) {
+void Parser::Factor(int& type) {
 		wchar_t* name;  Obj* obj;  int numberReference;
 		if (la->kind == _number) {
 			type = undef; 
@@ -200,7 +192,21 @@ void Parser::Factor(int &type) {
 			Ident(name);
 			obj = symbolTable -> Find(name);
 			type = obj -> type;
-			if (obj -> kind != var) throw std::invalid_argument("identifier undeclared"); 
+			
+			if (obj -> kind == function ) {
+				Expect(14 /* "(" */);
+				if (StartOf(3)) {
+					int& typeFunctionVar = undef; 
+					Factor(typeFunctionVar);
+					while (la->kind == 8 /* "," */) {
+						int& typeFunctionSubsequentVar = undef; 
+						Get();
+						Factor(typeFunctionSubsequentVar);
+					}
+				}
+				Expect(16 /* ")" */);
+			}
+			else if (obj -> kind != var) throw std::invalid_argument("identifier not a variable"); 
 			
 		} else if (la->kind == 14 /* "(" */) {
 			Get();
@@ -209,12 +215,12 @@ void Parser::Factor(int &type) {
 		} else if (la->kind == 5 /* "-" */) {
 			Get();
 			Factor(type);
-		} else SynErr(29);
+		} else SynErr(28);
 }
 
 void Parser::Zoso() {
 		wchar_t* name; InitDeclarations(); 
-		Expect(23 /* "Program" */);
+		Expect(22 /* "Program" */);
 		symbolTable -> OpenScope(); 
 		Expect(17 /* "{" */);
 		while (StartOf(2)) {
@@ -325,7 +331,7 @@ void Parser::Parse() {
 }
 
 Parser::Parser(Scanner *scanner) {
-	maxT = 24;
+	maxT = 23;
 
 	ParserInitCaller<Parser>::CallInit(this);
 	dummyToken = NULL;
@@ -340,12 +346,11 @@ bool Parser::StartOf(int s) {
 	const bool T = true;
 	const bool x = false;
 
-	static bool set[5][26] = {
-		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x},
-		{x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,x, x,x,x,x, x,x,x,x, x,x},
-		{x,T,T,x, x,T,x,x, x,T,T,T, T,T,T,x, x,x,x,T, x,x,x,x, x,x},
-		{x,T,T,T, x,T,x,x, x,x,x,x, x,x,T,x, x,x,x,x, x,x,x,x, x,x},
-		{x,T,T,x, x,T,x,x, x,x,x,x, x,x,T,x, x,x,x,x, x,x,x,x, x,x}
+	static bool set[4][25] = {
+		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x},
+		{x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,x, x,x,x,x, x,x,x,x, x},
+		{x,T,T,x, x,T,x,x, x,T,T,T, T,T,T,T, x,x,x,x, x,x,x,x, x},
+		{x,T,T,x, x,T,x,x, x,x,x,x, x,x,T,x, x,x,x,x, x,x,x,x, x}
 	};
 
 
@@ -385,17 +390,16 @@ void Errors::SynErr(int line, int col, int n) {
 			case 16: s = coco_string_create(L"\")\" expected"); break;
 			case 17: s = coco_string_create(L"\"{\" expected"); break;
 			case 18: s = coco_string_create(L"\"}\" expected"); break;
-			case 19: s = coco_string_create(L"\"print\" expected"); break;
-			case 20: s = coco_string_create(L"\"==\" expected"); break;
-			case 21: s = coco_string_create(L"\"<\" expected"); break;
-			case 22: s = coco_string_create(L"\">\" expected"); break;
-			case 23: s = coco_string_create(L"\"Program\" expected"); break;
-			case 24: s = coco_string_create(L"??? expected"); break;
-			case 25: s = coco_string_create(L"invalid AddOp"); break;
-			case 26: s = coco_string_create(L"invalid MulOp"); break;
-			case 27: s = coco_string_create(L"invalid Type"); break;
-			case 28: s = coco_string_create(L"invalid Statement"); break;
-			case 29: s = coco_string_create(L"invalid Factor"); break;
+			case 19: s = coco_string_create(L"\"==\" expected"); break;
+			case 20: s = coco_string_create(L"\"<\" expected"); break;
+			case 21: s = coco_string_create(L"\">\" expected"); break;
+			case 22: s = coco_string_create(L"\"Program\" expected"); break;
+			case 23: s = coco_string_create(L"??? expected"); break;
+			case 24: s = coco_string_create(L"invalid AddOp"); break;
+			case 25: s = coco_string_create(L"invalid MulOp"); break;
+			case 26: s = coco_string_create(L"invalid Type"); break;
+			case 27: s = coco_string_create(L"invalid Statement"); break;
+			case 28: s = coco_string_create(L"invalid Factor"); break;
 
 		default:
 		{

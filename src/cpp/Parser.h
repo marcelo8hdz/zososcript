@@ -85,8 +85,8 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
 	void Statement();
 	void Expr(int& type);
 	void SimExpr(int& type);
-	void Term(int &type);
-	void Factor(int &type);
+	void Term(int& type);
+	void Factor(int& type);
 	void Zoso();
 
 	void Parse();

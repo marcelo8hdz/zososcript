@@ -54,24 +54,22 @@ PRODUCTIONS
         {',' Ident<name> (. symbolTable -> NewObj(name, var, type); .) } 
     .
 
-    Type<int &type> =                        
-        ( 
-            "int" (. type = integer; .)
-            | "bool" (. type = boolean; .)
-            | "float" (. type = decimal; .)
-            | "void" (. type = undef; .)
-        )
-    .
+    Type<int &type> = ( 
+        "int" (. type = integer; .)
+        | "bool" (. type = boolean; .)
+        | "float" (. type = decimal; .)
+        | "void" (. type = undef; .)
+    ).
 
     FunctionDeclaration (. wchar_t* name; int type; .) = 
         "function" Type<type>  
         Ident<name> (. symbolTable -> NewObj(name, function, type); .)
-         '(' { VariableDeclaration ';' } ')' 
-         '{' { Statement }'}'
+        '(' (. symbolTable -> OpenScope(); .) { VariableDeclaration ';' } ')' 
+        '{' { Statement }'}' 
+        (. symbolTable -> CloseScope(); .)
     .
 
     Statement (. int type; .) = (
-        "print" '(' { string | Expr<type> } ')' 
         | Expr<type> 
         | FunctionDeclaration
         | VariableDeclaration
@@ -89,21 +87,32 @@ PRODUCTIONS
             .)
         }.
 
-    Term<int &type> (. int nextType; .) =
+    Term<int& type> (. int nextType; .) =
         Factor<type> {
             MulOp Factor<nextType> (. 
                 if (type != integer || nextType != integer) throw std::invalid_argument("integer type expected"); // add float logic
             .)
         }.
 
-    Factor<int &type> (. wchar_t* name;  Obj* obj;  int numberReference;.) =
+    Factor<int& type> (. wchar_t* name;  Obj* obj;  int numberReference;.) =
         (. type = undef; .)
         number (. type = integer; swscanf(t -> val, L"%d", &numberReference); .) // convert to int
-        | Ident<name> (.
-            obj = symbolTable -> Find(name);
-            type = obj -> type;
-            if (obj -> kind != var) throw std::invalid_argument("identifier undeclared"); 
-        .)
+        | // la == Identification
+            Ident<name> (.
+                obj = symbolTable -> Find(name);
+                type = obj -> type;
+            .) 
+            [IF( obj -> kind == function ) 
+                '(' [ 
+                    (. int& typeFunctionVar = undef; .)
+                    Factor<typeFunctionVar> { 
+                        (. int& typeFunctionSubsequentVar = undef; .)
+                         ',' Factor<typeFunctionSubsequentVar> 
+                    }
+                ] ')' 
+            ] (.
+                else if (obj -> kind != var) throw std::invalid_argument("identifier not a variable"); 
+            .)
         | '(' SimExpr<type> ')' 
         | '-' Factor<type>
     .
@@ -120,18 +129,14 @@ END Zoso.
 /*-------------------
 
 TODO:
-function call -> hoping this fixes necesity of print in grammar
-
 variable assignation
 
 add floats
-
-print shouldn't be in grammar? its more like its own method -> grammar gets fucked with out it doe
 
 logical operations
 
 numbers are not being typed correctly
 
-string are not being parsed
+strings are not being parsed
 
 -----------------------------------------------------*/
