@@ -1,13 +1,9 @@
-Zoso Test {
-
-
-       
-    print("sdds");
+Program {
     int variable;
     float instagram;
     void whatsapp;
-    ident;
-    argo; argo;
+    print(whatsapp;);
+    12 + 23
     function void arg(int fff,f; float asdsfas,asdfas;){}
 
 }

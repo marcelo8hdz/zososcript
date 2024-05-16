@@ -53,19 +53,20 @@ public:
 	Token *t;			// last recognized token
 	Token *la;			// lookahead token
 
-int undef, integer, boolean, decimal; // types
+int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operators
+    int undef, integer, boolean, decimal; // types
     int var, function; //Object Kinds
 
 
-    // int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN; // operation codes
+    int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN; // operation codes
 
     void InitDeclarations() {
-        // plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7
+        plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7;
         integer = 1, boolean = 2, decimal = 3;
         var = 0, function = 1;
 
-    //     // Operational Codes
-    //     ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
+        // Operational Codes
+        ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
     }
     SymbolTable *symbolTable;
 
@@ -82,10 +83,10 @@ int undef, integer, boolean, decimal; // types
 	void Type(int &type);
 	void FunctionDeclaration();
 	void Statement();
-	void Expr();
-	void SimExpr();
-	void Term();
-	void Factor();
+	void Expr(int& type);
+	void SimExpr(int& type);
+	void Term(int &type);
+	void Factor(int &type);
 	void Zoso();
 
 	void Parse();
