@@ -33,9 +33,10 @@ CHARACTERS
     space = ' '.
 
 TOKENS
-    number = digit { digit } [ '.'] { digit }.
     ident = letter { letter | digit }.
     string = quote { letter | digit } quote.
+    number = digit {digit} | digit {digit} CONTEXT ("..").
+    float = digit {digit} '.' {digit}. 
 
 IGNORE cr + lf + tab + space
 
@@ -69,14 +70,41 @@ PRODUCTIONS
         (. symbolTable -> CloseScope(); .)
     .
 
-    Statement (. int type; .) = (
-        | Expr<type> 
+    // IfCase (. int& type; .) = 
+    //     "if" '(' LogicalExpresion<type> ')' '{'
+    //         (. symbolTable -> OpenScope(); .)
+    //         { Statement }
+    //         (. symbolTable -> CloseScope(); .)
+    //     '}'
+    //     [ "else" '{' 
+    //         (. symbolTable -> OpenScope(); .)
+    //         { Statement } 
+    //         (. symbolTable -> CloseScope(); .)
+    //     '}']
+    // .
+
+    // WhileLoop (. int& type; .) = 
+    //     "while" '(' LogicalExpresion<type> ')' '{' 
+    //         (. symbolTable -> OpenScope(); .)
+    //         { Statement } 
+    //         (. symbolTable -> CloseScope(); .)
+    //     '}'
+    // .
+
+    Statement (. int type; wchar_t* name; Obj* obj;.) = (
+        | Ident<name> (.
+            obj = symbolTable -> Find(name);
+            type = obj -> type;
+        .) (
+            |'=' LogicalExpresion<type>
+            | '(' [LogicalExpresion<type>] ')'
+        )
         | FunctionDeclaration
         | VariableDeclaration
     ) ';'
     .
 
-    Expr<int& type> (. int nextType; .) = 
+    LogicalExpresion<int& type> (. int nextType; .) = 
         SimExpr<type> [ ( "==" | '<' | '>' ) SimExpr<nextType> ] 
     .
 
@@ -85,7 +113,8 @@ PRODUCTIONS
             AddOp Term<nextType> (. 
                 if (type != integer || nextType != integer) throw std::invalid_argument("integer type expected"); // add float logic
             .)
-        }.
+        }
+    .
 
     Term<int& type> (. int nextType; .) =
         Factor<type> {

@@ -421,33 +421,33 @@ Scanner::~Scanner() {
 void Scanner::Init() {
 	EOL    = '\n';
 	eofSym = 0;
-	maxT = 23;
-	noSym = 23;
+	maxT = 25;
+	noSym = 25;
 	int i;
-	for (i = 48; i <= 57; ++i) start.set(i, 1);
-	for (i = 65; i <= 90; ++i) start.set(i, 3);
-	for (i = 97; i <= 122; ++i) start.set(i, 3);
-	for (i = 34; i <= 34; ++i) start.set(i, 4);
-	start.set(43, 7);
-	start.set(45, 8);
-	start.set(42, 9);
-	start.set(47, 10);
-	start.set(44, 11);
-	start.set(40, 12);
-	start.set(59, 13);
-	start.set(41, 14);
-	start.set(123, 15);
-	start.set(125, 16);
-	start.set(61, 17);
+	for (i = 65; i <= 90; ++i) start.set(i, 1);
+	for (i = 97; i <= 122; ++i) start.set(i, 1);
+	for (i = 34; i <= 34; ++i) start.set(i, 2);
+	for (i = 48; i <= 57; ++i) start.set(i, 6);
+	start.set(43, 8);
+	start.set(45, 9);
+	start.set(42, 10);
+	start.set(47, 11);
+	start.set(44, 12);
+	start.set(40, 13);
+	start.set(59, 14);
+	start.set(41, 15);
+	start.set(123, 16);
+	start.set(125, 17);
+	start.set(61, 21);
 	start.set(60, 19);
 	start.set(62, 20);
 		start.set(Buffer::EoF, -1);
-	keywords.set(L"int", 9);
-	keywords.set(L"bool", 10);
-	keywords.set(L"float", 11);
-	keywords.set(L"void", 12);
-	keywords.set(L"function", 13);
-	keywords.set(L"Program", 22);
+	keywords.set(L"int", 10);
+	keywords.set(L"bool", 11);
+	keywords.set(L"float", 12);
+	keywords.set(L"void", 13);
+	keywords.set(L"function", 14);
+	keywords.set(L"Program", 24);
 
 
 	tvalLength = 128;
@@ -566,6 +566,7 @@ Token* Scanner::NextToken() {
 			(ch >= 9 && ch <= 10) || ch == 13 || ch == L' '
 	) NextCh();
 
+	int apx = 0;
 	int recKind = noSym;
 	int recEnd = pos;
 	t = CreateToken();
@@ -584,36 +585,42 @@ Token* Scanner::NextToken() {
 			t->kind = recKind; break;
 		} // NextCh already done
 		case 1:
+			case_1:
 			recEnd = pos; recKind = 1;
-			if ((ch >= L'0' && ch <= L'9')) {AddCh(); goto case_6;}
-			else if (ch == L'.') {AddCh(); goto case_2;}
-			else {t->kind = 1; break;}
+			if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_1;}
+			else {t->kind = 1; wchar_t *literal = coco_string_create(tval, 0, tlen); t->kind = keywords.get(literal, t->kind); coco_string_delete(literal); break;}
 		case 2:
 			case_2:
-			recEnd = pos; recKind = 1;
-			if ((ch >= L'0' && ch <= L'9')) {AddCh(); goto case_2;}
-			else {t->kind = 1; break;}
+			if (ch == L'"') {AddCh(); goto case_3;}
+			else if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_2;}
+			else {goto case_0;}
 		case 3:
 			case_3:
-			recEnd = pos; recKind = 2;
-			if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_3;}
-			else {t->kind = 2; wchar_t *literal = coco_string_create(tval, 0, tlen); t->kind = keywords.get(literal, t->kind); coco_string_delete(literal); break;}
+			{t->kind = 2; break;}
 		case 4:
 			case_4:
-			if (ch == L'"') {AddCh(); goto case_5;}
-			else if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_4;}
-			else {goto case_0;}
+			{
+				tlen -= apx;
+				SetScannerBehindT();				buffer->SetPos(t->pos); NextCh(); line = t->line; col = t->col;
+				for (int i = 0; i < tlen; i++) NextCh();
+				t->kind = 3; break;}
 		case 5:
 			case_5:
-			{t->kind = 3; break;}
+			recEnd = pos; recKind = 4;
+			if ((ch >= L'0' && ch <= L'9')) {AddCh(); goto case_5;}
+			else {t->kind = 4; break;}
 		case 6:
 			case_6:
-			recEnd = pos; recKind = 1;
+			recEnd = pos; recKind = 3;
 			if ((ch >= L'0' && ch <= L'9')) {AddCh(); goto case_6;}
-			else if (ch == L'.') {AddCh(); goto case_2;}
-			else {t->kind = 1; break;}
+			else if (ch == L'.') {apx++; AddCh(); goto case_7;}
+			else {t->kind = 3; break;}
 		case 7:
-			{t->kind = 4; break;}
+			case_7:
+			recEnd = pos; recKind = 4;
+			if ((ch >= L'0' && ch <= L'9')) {apx = 0; AddCh(); goto case_5;}
+			else if (ch == L'.') {apx++; AddCh(); goto case_4;}
+			else {t->kind = 4; break;}
 		case 8:
 			{t->kind = 5; break;}
 		case 9:
@@ -623,7 +630,7 @@ Token* Scanner::NextToken() {
 		case 11:
 			{t->kind = 8; break;}
 		case 12:
-			{t->kind = 14; break;}
+			{t->kind = 9; break;}
 		case 13:
 			{t->kind = 15; break;}
 		case 14:
@@ -633,15 +640,18 @@ Token* Scanner::NextToken() {
 		case 16:
 			{t->kind = 18; break;}
 		case 17:
-			if (ch == L'=') {AddCh(); goto case_18;}
-			else {goto case_0;}
+			{t->kind = 19; break;}
 		case 18:
 			case_18:
-			{t->kind = 19; break;}
-		case 19:
-			{t->kind = 20; break;}
-		case 20:
 			{t->kind = 21; break;}
+		case 19:
+			{t->kind = 22; break;}
+		case 20:
+			{t->kind = 23; break;}
+		case 21:
+			recEnd = pos; recKind = 20;
+			if (ch == L'=') {AddCh(); goto case_18;}
+			else {t->kind = 20; break;}
 
 	}
 	AppendVal(t);

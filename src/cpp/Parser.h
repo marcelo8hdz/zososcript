@@ -29,9 +29,10 @@ class Parser {
 private:
 	enum {
 		_EOF=0,
-		_number=1,
-		_ident=2,
-		_string=3
+		_ident=1,
+		_string=2,
+		_number=3,
+		_float=4
 	};
 	int maxT;
 
@@ -83,7 +84,7 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
 	void Type(int &type);
 	void FunctionDeclaration();
 	void Statement();
-	void Expr(int& type);
+	void LogicalExpresion(int& type);
 	void SimExpr(int& type);
 	void Term(int& type);
 	void Factor(int& type);
