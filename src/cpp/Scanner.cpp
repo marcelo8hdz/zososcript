@@ -421,8 +421,8 @@ Scanner::~Scanner() {
 void Scanner::Init() {
 	EOL    = '\n';
 	eofSym = 0;
-	maxT = 25;
-	noSym = 25;
+	maxT = 28;
+	noSym = 28;
 	int i;
 	for (i = 65; i <= 90; ++i) start.set(i, 1);
 	for (i = 97; i <= 122; ++i) start.set(i, 1);
@@ -447,7 +447,10 @@ void Scanner::Init() {
 	keywords.set(L"float", 12);
 	keywords.set(L"void", 13);
 	keywords.set(L"function", 14);
-	keywords.set(L"Program", 24);
+	keywords.set(L"if", 20);
+	keywords.set(L"else", 21);
+	keywords.set(L"while", 22);
+	keywords.set(L"Program", 27);
 
 
 	tvalLength = 128;
@@ -643,15 +646,15 @@ Token* Scanner::NextToken() {
 			{t->kind = 19; break;}
 		case 18:
 			case_18:
-			{t->kind = 21; break;}
+			{t->kind = 24; break;}
 		case 19:
-			{t->kind = 22; break;}
+			{t->kind = 25; break;}
 		case 20:
-			{t->kind = 23; break;}
+			{t->kind = 26; break;}
 		case 21:
-			recEnd = pos; recKind = 20;
+			recEnd = pos; recKind = 23;
 			if (ch == L'=') {AddCh(); goto case_18;}
-			else {t->kind = 20; break;}
+			else {t->kind = 23; break;}
 
 	}
 	AppendVal(t);

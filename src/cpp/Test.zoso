@@ -11,6 +11,9 @@ Program {
     sum();
     whatsapp = variable + 23;
     instagram = variable + sum() + 23;
+    if (1+2) {int ifVar;};
+
+
 
 
 

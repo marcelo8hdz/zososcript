@@ -14,7 +14,7 @@ public:
 	wchar_t* name;		// name of the object
 	int type;		// type of the object 
 	Obj* next;		// to next object in same scope
-	int kind;		// var, function, scope
+	int kind;		// var, function
 	int address;		// address in memory or start of function
 	int level;		// nesting level; 0=global, 1=local
 	Obj* locals;		// scopes: to locally declared objects

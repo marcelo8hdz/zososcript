@@ -84,7 +84,9 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
 	void Type(int &type);
 	void FunctionDeclaration();
 	void Statement();
+	void IfCase();
 	void LogicalExpresion(int& type);
+	void WhileLoop();
 	void SimExpr(int& type);
 	void Term(int& type);
 	void Factor(int& type);
