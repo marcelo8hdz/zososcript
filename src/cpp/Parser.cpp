@@ -176,6 +176,10 @@ void Parser::Statement() {
 			WhileLoop();
 			break;
 		}
+		case _string: {
+			Get();
+			break;
+		}
 		default: SynErr(35); break;
 		}
 		Expect(16 /* ";" */);
@@ -448,7 +452,7 @@ bool Parser::StartOf(int s) {
 	static bool set[4][32] = {
 		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x},
 		{x,x,x,x, x,x,x,x, x,x,T,T, T,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x},
-		{x,T,x,x, x,x,x,x, x,x,T,T, T,T,T,x, T,x,x,x, T,x,T,x, x,x,x,x, x,x,x,x},
+		{x,T,T,x, x,x,x,x, x,x,T,T, T,T,T,x, T,x,x,x, T,x,T,x, x,x,x,x, x,x,x,x},
 		{x,T,x,T, T,x,T,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x,x,x,T, T,x,x,x}
 	};
 

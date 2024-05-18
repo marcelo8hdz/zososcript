@@ -26,7 +26,7 @@ COMPILER Zoso
 CHARACTERS
     letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
     digit = "0123456789".
-    quote = '\"'.
+    quote = '"'.
     cr  = '\r'.
     lf  = '\n'.
     tab = '\t'.
@@ -103,6 +103,7 @@ PRODUCTIONS
         | VariableDeclaration
         | IfCase
         | WhileLoop
+        | string
     ) ';'
     .
 
@@ -165,10 +166,5 @@ END Zoso.
 
 TODO:
 
-add floats
-
-logical operations
-
-strings are not being parsed
 
 -----------------------------------------------------*/
