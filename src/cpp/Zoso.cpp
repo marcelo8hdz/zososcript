@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
     
 
     parser -> symbolTable = new SymbolTable(parser);
+    parser -> codeGenerator = new CodeGenerator();
     printf("created symbolTable");
     
     parser -> Parse();

@@ -1,6 +1,7 @@
 //#domain
 //cpp imports here
 #include "SymbolTable.h"
+#include "CodeGenerator.h"
 #include "wchar.h"
 //#enddomain
 
@@ -21,7 +22,8 @@ COMPILER Zoso
         // Operational Codes
         ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
     }
-    SymbolTable *symbolTable;
+    SymbolTable* symbolTable;
+    CodeGenerator* codeGenerator;
 
 CHARACTERS
     letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
@@ -131,8 +133,7 @@ PRODUCTIONS
         (. type = undef; .)
         number (. type = integer; swscanf(t -> val, L"%d", &numberReference); .) // convert to int
         | float (. type = decimal; swscanf(t -> val, L"%d", &decimalReference); .) // convert to float
-        | // la == Identification
-            Ident<name> (.
+        | Ident<name> (.
                 obj = symbolTable -> Find(name);
                 type = obj -> type;
             .) 
@@ -165,6 +166,6 @@ END Zoso.
 /*-------------------
 
 TODO:
-
+FOR LOOPS
 
 -----------------------------------------------------*/

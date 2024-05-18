@@ -8,58 +8,54 @@
 
 namespace Zoso {
 
-    class CodeGenerator {
-        public:
-            // opcodes
-            int
-            ADD,  SUB,   MUL,   DIV,   EQU,  LSS, GTR, NEG,
-            LOAD, LOADG, STO,   STOG,  CONST,
-            CALL, RET,   ENTER, LEAVE,
-            JMP,  FJMP,  READ,  WRITE;
+class CodeGenerator {
+    public:
+        // opcodes
+        int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN;
 
-            wchar_t* opcode[21];
+        wchar_t* opcode[21];
 
-            int progStart;		// address of first instruction of main program
-            int pc;				// program counter
-            char *code;
+        int programStart;		// address of first instruction of main program
+        int programCounter;	// program counter
+        char *code;
 
-            // data for Interpret
-            int *globals;
-            int *stack;
-            int top;	// top of stack
-            int bp;		// base pointer
+        // data for Interpret
+        int *globals;
+        int *stack;
+        int top;	     // top of stack
+        int basePointer; // base pointer
 
 
-            CodeGenerator();
+        CodeGenerator();
 
-            ~CodeGenerator();
+        ~CodeGenerator();
 
-            //----- code generation methods -----
+        //----- code generation methods -----
 
-            void Emit (int op);
+        void Emit (int op);
 
-            void Emit (int op, int val);
+        void Emit (int op, int val);
 
-            void Patch (int adr, int val);
+        void Patch (int adr, int val);
 
-            void Decode();
+        void Decode();
 
-            //----- interpreter methods -----
+        //----- interpreter methods -----
 
-            int Next();
+        int Next();
 
-            int Next2();
+        int Next2();
 
-            int Int(bool b);
+        int Int(bool b);
 
-            void Push(int val);
+        void Push(int val);
 
-            int Pop();
+        int Pop();
 
-            int ReadInt(FILE* s);
+        int ReadInt(FILE* s);
 
-            void Interpret(char* data);
-    };
+        void Interpret(char* data);
+};
 
 }; // namespace
 

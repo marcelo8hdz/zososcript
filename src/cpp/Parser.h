@@ -4,6 +4,7 @@
 #define Zoso_COCO_PARSER_H__
 
 #include "SymbolTable.h"
+#include "CodeGenerator.h"
 #include "wchar.h"
 
 
@@ -69,7 +70,8 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
         // Operational Codes
         ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
     }
-    SymbolTable *symbolTable;
+    SymbolTable* symbolTable;
+    CodeGenerator* codeGenerator;
 
 
 
