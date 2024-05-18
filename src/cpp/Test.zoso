@@ -11,10 +11,9 @@ Program {
     sum();
     whatsapp = variable + 23;
     instagram = variable + sum() + 23;
+    function void reddit (int redditVar;){redditVar=3;};
     if (1+2) {int ifVar;};
-
-
-
-
-
+    float aca;
+    aca = 3.3;
+    variable = 3.3;
 }

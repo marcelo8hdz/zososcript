@@ -54,7 +54,7 @@ Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
     last = NULL;
     
 	while (topScopeNode != NULL) {
-		std::cout << "symbolTable newObject while" << std::endl;
+		std::cout << "symbolTable while" << std::endl;
 		if (coco_string_equal(topScopeNode -> name, name)) throw std::invalid_argument("name already declared");
 		last = topScopeNode; 
         topScopeNode = topScopeNode -> next;
@@ -70,6 +70,7 @@ Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
 }
 
 Obj* SymbolTable::Find (wchar_t* name) {
+	std::cout << "symbolTable find" << std::endl;
 	Obj *obj, *scope;
 	scope = topScope;
 	

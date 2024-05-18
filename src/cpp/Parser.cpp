@@ -72,7 +72,7 @@ void Parser::AddOp() {
 			Get();
 		} else if (la->kind == 6 /* "-" */) {
 			Get();
-		} else SynErr(29);
+		} else SynErr(31);
 }
 
 void Parser::MulOp() {
@@ -80,7 +80,7 @@ void Parser::MulOp() {
 			Get();
 		} else if (la->kind == 8 /* "/" */) {
 			Get();
-		} else SynErr(30);
+		} else SynErr(32);
 }
 
 void Parser::VariableDeclaration() {
@@ -108,7 +108,7 @@ void Parser::Type(int &type) {
 		} else if (la->kind == 13 /* "void" */) {
 			Get();
 			type = undef; 
-		} else SynErr(31);
+		} else SynErr(33);
 }
 
 void Parser::FunctionDeclaration() {
@@ -149,11 +149,15 @@ void Parser::Statement() {
 				LogicalExpresion(type);
 			} else if (la->kind == 15 /* "(" */) {
 				Get();
-				if (StartOf(3)) {
+				while (StartOf(3)) {
 					LogicalExpresion(type);
+					while (la->kind == 9 /* "," */) {
+						Get();
+						LogicalExpresion(type);
+					}
 				}
 				Expect(17 /* ")" */);
-			} else SynErr(32);
+			} else SynErr(34);
 			break;
 		}
 		case 14 /* "function" */: {
@@ -172,7 +176,7 @@ void Parser::Statement() {
 			WhileLoop();
 			break;
 		}
-		default: SynErr(33); break;
+		default: SynErr(35); break;
 		}
 		Expect(16 /* ";" */);
 }
@@ -255,12 +259,20 @@ void Parser::Term(int& type) {
 }
 
 void Parser::Factor(int& type) {
-		wchar_t* name;  Obj* obj;  int numberReference;
-		if (la->kind == _number) {
+		wchar_t* name;  Obj* obj;  int numberReference; float decimalReference;
+		switch (la->kind) {
+		case _number: {
 			type = undef; 
 			Get();
 			type = integer; swscanf(t -> val, L"%d", &numberReference); 
-		} else if (la->kind == _ident) {
+			break;
+		}
+		case _float: {
+			Get();
+			type = decimal; swscanf(t -> val, L"%d", &decimalReference); 
+			break;
+		}
+		case _ident: {
 			Ident(name);
 			obj = symbolTable -> Find(name);
 			type = obj -> type;
@@ -280,19 +292,34 @@ void Parser::Factor(int& type) {
 			}
 			else if (obj -> kind != var) throw std::invalid_argument("identifier not a variable"); 
 			
-		} else if (la->kind == 15 /* "(" */) {
+			break;
+		}
+		case 15 /* "(" */: {
 			Get();
 			SimExpr(type);
 			Expect(17 /* ")" */);
-		} else if (la->kind == 6 /* "-" */) {
+			break;
+		}
+		case 6 /* "-" */: {
 			Get();
 			Factor(type);
-		} else SynErr(34);
+			break;
+		}
+		case 27 /* "false" */: {
+			Get();
+			break;
+		}
+		case 28 /* "true" */: {
+			Get();
+			break;
+		}
+		default: SynErr(36); break;
+		}
 }
 
 void Parser::Zoso() {
 		wchar_t* name; InitDeclarations(); 
-		Expect(27 /* "Program" */);
+		Expect(29 /* "Program" */);
 		symbolTable -> OpenScope(); 
 		Expect(18 /* "{" */);
 		while (StartOf(2)) {
@@ -403,7 +430,7 @@ void Parser::Parse() {
 }
 
 Parser::Parser(Scanner *scanner) {
-	maxT = 28;
+	maxT = 30;
 
 	ParserInitCaller<Parser>::CallInit(this);
 	dummyToken = NULL;
@@ -418,11 +445,11 @@ bool Parser::StartOf(int s) {
 	const bool T = true;
 	const bool x = false;
 
-	static bool set[4][30] = {
-		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x},
-		{x,x,x,x, x,x,x,x, x,x,T,T, T,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x},
-		{x,T,x,x, x,x,x,x, x,x,T,T, T,T,T,x, T,x,x,x, T,x,T,x, x,x,x,x, x,x},
-		{x,T,x,T, x,x,T,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x,x,x,x, x,x}
+	static bool set[4][32] = {
+		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x},
+		{x,x,x,x, x,x,x,x, x,x,T,T, T,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x},
+		{x,T,x,x, x,x,x,x, x,x,T,T, T,T,T,x, T,x,x,x, T,x,T,x, x,x,x,x, x,x,x,x},
+		{x,T,x,T, T,x,T,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x,x,x,T, T,x,x,x}
 	};
 
 
@@ -470,14 +497,16 @@ void Errors::SynErr(int line, int col, int n) {
 			case 24: s = coco_string_create(L"\"==\" expected"); break;
 			case 25: s = coco_string_create(L"\"<\" expected"); break;
 			case 26: s = coco_string_create(L"\">\" expected"); break;
-			case 27: s = coco_string_create(L"\"Program\" expected"); break;
-			case 28: s = coco_string_create(L"??? expected"); break;
-			case 29: s = coco_string_create(L"invalid AddOp"); break;
-			case 30: s = coco_string_create(L"invalid MulOp"); break;
-			case 31: s = coco_string_create(L"invalid Type"); break;
-			case 32: s = coco_string_create(L"invalid Statement"); break;
-			case 33: s = coco_string_create(L"invalid Statement"); break;
-			case 34: s = coco_string_create(L"invalid Factor"); break;
+			case 27: s = coco_string_create(L"\"false\" expected"); break;
+			case 28: s = coco_string_create(L"\"true\" expected"); break;
+			case 29: s = coco_string_create(L"\"Program\" expected"); break;
+			case 30: s = coco_string_create(L"??? expected"); break;
+			case 31: s = coco_string_create(L"invalid AddOp"); break;
+			case 32: s = coco_string_create(L"invalid MulOp"); break;
+			case 33: s = coco_string_create(L"invalid Type"); break;
+			case 34: s = coco_string_create(L"invalid Statement"); break;
+			case 35: s = coco_string_create(L"invalid Statement"); break;
+			case 36: s = coco_string_create(L"invalid Factor"); break;
 
 		default:
 		{

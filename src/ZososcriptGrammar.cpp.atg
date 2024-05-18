@@ -126,9 +126,10 @@ PRODUCTIONS
         }
     .
 
-    Factor<int& type> (. wchar_t* name;  Obj* obj;  int numberReference;.) =
+    Factor<int& type> (. wchar_t* name;  Obj* obj;  int numberReference; float decimalReference;.) =
         (. type = undef; .)
         number (. type = integer; swscanf(t -> val, L"%d", &numberReference); .) // convert to int
+        | float (. type = decimal; swscanf(t -> val, L"%d", &decimalReference); .) // convert to float
         | // la == Identification
             Ident<name> (.
                 obj = symbolTable -> Find(name);
@@ -147,6 +148,8 @@ PRODUCTIONS
             .)
         | '(' SimExpr<type> ')' 
         | '-' Factor<type>
+        | "false"
+        | "true"
     .
 
     Zoso (. wchar_t* name; InitDeclarations(); .) = 
@@ -167,7 +170,5 @@ add floats
 logical operations
 
 strings are not being parsed
-
-
 
 -----------------------------------------------------*/
