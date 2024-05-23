@@ -6,6 +6,7 @@
 #include "SymbolTable.h"
 #include "CodeGenerator.h"
 #include "wchar.h"
+#include <iostream>
 
 
 #include "Scanner.h"
@@ -60,16 +61,20 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
     int var, function; //Object Kinds
 
 
-    int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN; // operation codes
+    int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN, // operation codes
+        LOAD, CONST, FCALL, RETURN, GOTO, GOTOF, STORE, READ, WRITE, PRINT, NEQU, PARENTHESIS;
 
     void InitDeclarations() {
         plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7;
-        integer = 1, boolean = 2, decimal = 3;
+        undef = 0, integer = 1, boolean = 2, decimal = 3;
         var = 0, function = 1;
 
         // Operational Codes
         ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
+        LOAD = 8; CONST = 9; FCALL = 10; RETURN = 11; GOTO = 12; GOTOF = 13; STORE = 14; 
+        READ = 15; WRITE = 16; PRINT = 17; NEQU = 18, PARENTHESIS = 19;
     }
+
     SymbolTable* symbolTable;
     CodeGenerator* codeGenerator;
 
@@ -80,8 +85,9 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
 	void SemErr(const wchar_t* msg);
 
 	void Ident(wchar_t* &name);
-	void AddOp();
-	void MulOp();
+	void AddOp(int& op);
+	void MulOp(int& op);
+	void RelOp(int& op);
 	void VariableDeclaration();
 	void Type(int &type);
 	void FunctionDeclaration();

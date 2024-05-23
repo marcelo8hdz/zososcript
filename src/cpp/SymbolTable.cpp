@@ -6,7 +6,6 @@
 namespace Zoso {
 
 SymbolTable::SymbolTable(Parser* parser): undef(0), integer(1), boolean(2), decimal(3), var(0), function(1), scope(2) {
-	std::cout << "symbolTable constructor" << std::endl;
 
 	errors = parser -> errors;
 	topScope = NULL;
@@ -22,7 +21,6 @@ SymbolTable::SymbolTable(Parser* parser): undef(0), integer(1), boolean(2), deci
 }
 
 void SymbolTable::OpenScope () {
-	std::cout << "symbolTable open scope" << std::endl;
 	Obj *newScope = new Obj();
 	
 	newScope -> name = coco_string_create(""); 
@@ -36,13 +34,11 @@ void SymbolTable::OpenScope () {
 }
 
 void SymbolTable::CloseScope () {
-	std::cout << "symbolTable close scope" << std::endl;
 	topScope = topScope -> next; 
 	currentLevel--;
 }
 // new object node in current scope 
 Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
-	std::cout << "symbolTable new object" << std::endl;
 	Obj *topScopeNode, *last, *newObject = new Obj();
 
 	newObject -> name = coco_string_create(name); 
@@ -54,7 +50,6 @@ Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
     last = NULL;
     
 	while (topScopeNode != NULL) {
-		std::cout << "symbolTable while" << std::endl;
 		if (coco_string_equal(topScopeNode -> name, name)) throw std::invalid_argument("name already declared");
 		last = topScopeNode; 
         topScopeNode = topScopeNode -> next;
@@ -64,23 +59,22 @@ Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
     else last -> next = newObject;
 
 	if (kind == var) newObject -> address = topScope -> nextAddress++;
-	
+	newObject -> PrintObj(0);
 	return newObject;
 
 }
 
 Obj* SymbolTable::Find (wchar_t* name) {
-	std::cout << "symbolTable find" << std::endl;
 	Obj *obj, *scope;
 	scope = topScope;
 	
 	while (scope != NULL) {  // for all open scopes
-		obj = scope->locals;
+		obj = scope -> locals;
 		while (obj != NULL) {  // for all objects in this scope
-			if (coco_string_equal(obj->name, name)) return obj;
-			obj = obj->next;
+			if (coco_string_equal(obj -> name, name)) return obj;
+			obj = obj -> next;
 		}
-		scope = scope->next;
+		scope = scope -> next;
 	}
 
 	wchar_t str[100];
@@ -92,6 +86,5 @@ Obj* SymbolTable::Find (wchar_t* name) {
 	
 	return undefObj;
 }
-
 
 }

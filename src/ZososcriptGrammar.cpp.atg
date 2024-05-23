@@ -3,6 +3,7 @@
 #include "SymbolTable.h"
 #include "CodeGenerator.h"
 #include "wchar.h"
+#include <iostream>
 //#enddomain
 
 COMPILER Zoso
@@ -12,16 +13,20 @@ COMPILER Zoso
     int var, function; //Object Kinds
 
 
-    int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN; // operation codes
+    int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN, // operation codes
+        LOAD, CONST, FCALL, RETURN, GOTO, GOTOF, STORE, READ, WRITE, PRINT, NEQU, PARENTHESIS;
 
     void InitDeclarations() {
         plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7;
-        integer = 1, boolean = 2, decimal = 3;
+        undef = 0, integer = 1, boolean = 2, decimal = 3;
         var = 0, function = 1;
 
         // Operational Codes
         ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
+        LOAD = 8; CONST = 9; FCALL = 10; RETURN = 11; GOTO = 12; GOTOF = 13; STORE = 14; 
+        READ = 15; WRITE = 16; PRINT = 17; NEQU = 18, PARENTHESIS = 19;
     }
+
     SymbolTable* symbolTable;
     CodeGenerator* codeGenerator;
 
@@ -37,19 +42,32 @@ CHARACTERS
 TOKENS
     ident = letter { letter | digit }.
     string = quote { letter | digit } quote.
-    number = digit {digit} | digit {digit} CONTEXT ("..").
-    float = digit {digit} '.' {digit}. 
+    number = digit {digit}.
+    float = digit {digit} '.' digit {digit}. 
 
 IGNORE cr + lf + tab + space
 
 PRODUCTIONS
-    Ident <wchar_t* &name> = 
+    Ident<wchar_t* &name> = 
         ident (. name = coco_string_create(t -> val); .)
     .
 
-    AddOp = '+' | '-'.
+    AddOp<int& op> = 
+        '+' (. op = ADD; codeGenerator -> operatorStack.push(op); .) 
+        | '-' (. op = SUB; codeGenerator -> operatorStack.push(op); .)
+    .
 
-    MulOp = '*' | '/'.
+    MulOp<int& op> = 
+        '*' (. op = MUL; codeGenerator -> operatorStack.push(op); .) 
+        | '/' (. op = DIV; codeGenerator -> operatorStack.push(op); .)
+    .
+
+    RelOp<int& op> = 
+        "==" (. op = EQU; codeGenerator -> operatorStack.push(op); .)
+        | '<'  (. op = GTR; codeGenerator -> operatorStack.push(op); .)
+        | '>'  (. op = LSS; codeGenerator -> operatorStack.push(op); .)
+        | "!=" (. op = NEQU; codeGenerator -> operatorStack.push(op); .)
+    .
 
     VariableDeclaration (. wchar_t* name; int type; .) = 
         Type<type>
@@ -59,7 +77,7 @@ PRODUCTIONS
 
     Type<int &type> = ( 
         "int" (. type = integer; .)
-        | "bool" (. type = boolean; .)
+        | "boolean" (. type = boolean; .)
         | "float" (. type = decimal; .)
         | "void" (. type = undef; .)
     ).
@@ -68,7 +86,7 @@ PRODUCTIONS
         "function" Type<type>  
         Ident<name> (. symbolTable -> NewObj(name, function, type); .)
         '(' (. symbolTable -> OpenScope(); .) { VariableDeclaration ';' } ')' 
-        '{' { Statement }'}' 
+        '{'{ Statement }'}' 
         (. symbolTable -> CloseScope(); .)
     .
 
@@ -93,14 +111,12 @@ PRODUCTIONS
         '}'
     .
 
-    Statement (. int type; wchar_t* name; Obj* obj;.) = (
+    Statement (. int type; wchar_t* name; Obj* obj; .) = (
         | Ident<name> (.
             obj = symbolTable -> Find(name);
             type = obj -> type;
-        .) (
-            |'=' LogicalExpresion<type>
-            | '(' { LogicalExpresion<type> {',' LogicalExpresion<type> }} ')' //
-        )
+            int newtype = undef;
+        .) '=' LogicalExpresion<newtype> 
         | FunctionDeclaration
         | VariableDeclaration
         | IfCase
@@ -109,49 +125,81 @@ PRODUCTIONS
     ) ';'
     .
 
-    LogicalExpresion<int& type> (. int nextType; .) = 
-        SimExpr<type> [ ( "==" | '<' | '>' ) SimExpr<nextType> ] 
+    LogicalExpresion<int& type> (. int nextType; int op;.) = 
+        SimExpr<type> { RelOp<op> SimExpr<nextType> (. 
+                codeGenerator -> getRelOpResultType(nextType); 
+        .)} 
     .
 
-    SimExpr<int& type> (. int nextType; .) =  
-        Term<type> {
-            AddOp Term<nextType> (. 
-                if (type != integer || nextType != integer) throw std::invalid_argument("integer type expected"); // add float logic
+    SimExpr<int& type> (. int nextType, op; .) =  
+        Term<type> { 
+            AddOp<op> 
+            Term<nextType> (. 
+                codeGenerator -> getAddOpResultType(nextType);
             .)
         }
     .
 
-    Term<int& type> (. int nextType; .) =
-        Factor<type> {
-            MulOp Factor<nextType> (. 
-                if (type != integer || nextType != integer) throw std::invalid_argument("integer type expected"); // add float logic
+    Term<int& type> (. int nextType, op; .) =
+        Factor<type> { 
+            MulOp<op> 
+            Factor<nextType> (. 
+                codeGenerator -> getMulOpResultType(nextType); 
             .)
         }
     .
 
-    Factor<int& type> (. wchar_t* name;  Obj* obj;  int numberReference; float decimalReference;.) =
+    Factor<int& type> (. wchar_t* name;  Obj* obj;  int numberReference; float decimalReference;.) = 
         (. type = undef; .)
-        number (. type = integer; swscanf(t -> val, L"%d", &numberReference); .) // convert to int
-        | float (. type = decimal; swscanf(t -> val, L"%d", &decimalReference); .) // convert to float
+        float (. 
+            type = decimal; 
+            swscanf(t -> val, L"%d", &decimalReference); 
+            int tempMemory = codeGenerator -> avail -> next();
+            codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+            codeGenerator -> typeStack.push(type); 
+        .) 
+        | number (. 
+            type = integer; 
+            swscanf(t -> val, L"%d", &numberReference); 
+            int tempMemory = codeGenerator -> avail -> next();
+            codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+            codeGenerator -> typeStack.push(type); 
+        .) 
         | Ident<name> (.
                 obj = symbolTable -> Find(name);
                 type = obj -> type;
+                codeGenerator -> operandStack.push(obj -> address);
+                codeGenerator -> typeStack.push(obj -> type);
             .) 
-            [IF( obj -> kind == function ) 
-                '(' [ 
-                    (. int& typeFunctionVar = undef; .)
-                    Factor<typeFunctionVar> { 
-                        (. int& typeFunctionSubsequentVar = undef; .)
-                         ',' Factor<typeFunctionSubsequentVar> 
-                    }
-                ] ')' 
-            ] (.
-                else if (obj -> kind != var) throw std::invalid_argument("identifier not a variable"); 
+            // [IF( obj -> kind == function ) 
+            //     '(' [ 
+            //         (. int& typeFunctionVar = undef; .)
+            //         Factor<typeFunctionVar> { 
+            //             (. int& typeFunctionSubsequentVar = undef; .)
+            //              ',' Factor<typeFunctionSubsequentVar> 
+            //         }
+            //     ] ')' 
+            // ] 
+            (.
+                if (obj -> kind != var) throw std::invalid_argument("identifier not a variable");  //use symbol table use else if when functions
             .)
-        | '(' SimExpr<type> ')' 
+        |  '(' (. codeGenerator -> operatorStack.push(PARENTHESIS); .) 
+                SimExpr<type> 
+            ')' (. codeGenerator -> operatorStack.pop(); .) 
         | '-' Factor<type>
-        | "false"
-        | "true"
+        | "false" (. 
+            type = boolean;
+            int tempMemory = codeGenerator -> avail -> next();
+            codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+            codeGenerator -> typeStack.push(type);     
+        .)
+            
+        | "true" (.
+            type = boolean;
+            int tempMemory = codeGenerator -> avail -> next();
+            codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+            codeGenerator -> typeStack.push(type);     
+        .)
     .
 
     Zoso (. wchar_t* name; InitDeclarations(); .) = 
@@ -164,8 +212,10 @@ PRODUCTIONS
 END Zoso.
 
 /*-------------------
-
 TODO:
+
 FOR LOOPS
+
+SYMBOL TABLE TO HASHMAP INSTEAD OF LINKED LIST
 
 -----------------------------------------------------*/

@@ -35,6 +35,33 @@ public:
 		coco_string_delete(name);
 	}
 
+	void PrintObj(int indentLevel) {
+		// Print the details of the object with indentation
+		for (int i = 0; i < indentLevel; ++i) {
+			printf("\t");
+		}
+		printf("Name: %ls, Type: %d, Kind: %d, Address: %d, Level: %d\n",
+			name ? name : L"NULL",
+			type,
+			kind,
+			address,
+			level);
+
+		// Print the locals (inner scope) of the current object
+		if (locals) {
+			for (int i = 0; i < indentLevel; ++i) {
+				printf("\t");
+			}
+			printf("Locals:\n");
+			locals -> PrintObj(indentLevel + 1);
+		}
+
+		// Print the next object in the same scope
+		if (next) {
+			next -> PrintObj(indentLevel);
+		}
+	}
+
 
 };
 

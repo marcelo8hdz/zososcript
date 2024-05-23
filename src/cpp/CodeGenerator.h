@@ -2,59 +2,68 @@
 #define CODEGENERATOR_H__
 
 #include "Scanner.h"
+#include "Avail.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <wchar.h>
+#include <vector>
+#include <stack>
+#include <map>
 
 namespace Zoso {
 
 class CodeGenerator {
     public:
         // opcodes
-        int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN;
+        int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN,
+            LOAD, CONST, FCALL, RETURN, GOTO, GOTOF, STORE, READ, WRITE, PRINT, NEQU;
+
+        int ERROR;
+        int undef, integer, boolean, decimal; // types
 
         wchar_t* opcode[21];
 
         int programStart;		// address of first instruction of main program
         int programCounter;	// program counter
-        char *code;
 
-        // data for Interpret
-        int *globals;
-        int *stack;
-        int top;	     // top of stack
-        int basePointer; // base pointer
+        Avail* avail;
+        std::stack<int> operandStack;
+        std::stack<int> operatorStack;
+        std::stack<int> typeStack;
 
+        std::vector<std::vector<int> > code;
 
+        // std::map<int, int>  constIntAddress;
+        // int constIntCounter;
+        
+        // std::map<int, float> constFloatAddress;
+        // int constFloatCounter;
+        
+        // std::map<int, bool> constBoolAddress;
+        // int constBoolCounter;
+        
+        // std::map<int, std::string>  constStringAddress;
+        // int constStringCounter;
+        
+        
         CodeGenerator();
-
         ~CodeGenerator();
 
         //----- code generation methods -----
 
-        void Emit (int op);
+        void Emit(int op, int arg1, int arg2, int result);
 
-        void Emit (int op, int val);
+        void getAddOpResultType(int& resultType);
+        
+        void getRelOpResultType(int& resultType);
 
-        void Patch (int adr, int val);
-
-        void Decode();
-
-        //----- interpreter methods -----
-
-        int Next();
-
-        int Next2();
-
-        int Int(bool b);
-
-        void Push(int val);
-
-        int Pop();
-
-        int ReadInt(FILE* s);
-
-        void Interpret(char* data);
+        void getMulOpResultType(int& resultType);
+    
+        // THIS MAY WORK FOR .OBJ FILE???
+        // void pushToConstIntMap(int value);
+        // void pushToConstFloatMap(float value);
+        // void pushToConstBoolMap(bool value);
+        // void pushToConstStringMap(std::string value);
 };
 
 }; // namespace

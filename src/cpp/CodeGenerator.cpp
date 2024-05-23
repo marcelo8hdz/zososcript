@@ -1,14 +1,21 @@
 #include "Scanner.h"
 #include "CodeGenerator.h"
+#include "SemanticCube.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <wchar.h>
+#include<vector>
 
 namespace Zoso {
 CodeGenerator::CodeGenerator() {
 	// opcodes
-    ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
+    ADD = 0; SUB = 1; MUL = 2; DIV = 3; EQU = 4; LSS = 5; GTR = 6; ASSIGN = 7;
+    
+    LOAD = 8; CONST = 9; FCALL = 10; RETURN = 11; GOTO = 12; GOTOF = 13; STORE = 14; 
+    READ = 15; WRITE = 16; PRINT = 17; NEQU = 18;
+    ERROR = 404;
+    undef = 0, integer = 1, boolean = 2, decimal = 3; // types
 
     opcode[ 0] = coco_string_create("ADD  ");
     opcode[ 1] = coco_string_create("SUB  ");
@@ -19,26 +26,34 @@ CodeGenerator::CodeGenerator() {
     opcode[ 6] = coco_string_create("GTR  ");
     opcode[ 7] = coco_string_create("ASSIGN");  
     
-    // BELOW IS PROTOTYPE
     opcode[ 8] = coco_string_create("LOAD ");
-    opcode[ 9] = coco_string_create("LOADG");
-    opcode[10] = coco_string_create("CONST"); // NUMBERS, FLOATS, STRINGS?
-    opcode[11] = coco_string_create("CALL "); // FUNCTION CALLS?
-    opcode[12] = coco_string_create("RETURN");
-    opcode[13] = coco_string_create("LEAVE");
-    opcode[14] = coco_string_create("JMP  ");
-    opcode[15] = coco_string_create("FJMP ");
-    opcode[16] = coco_string_create("READ "); // READ VARIABLES?
-    opcode[17] = coco_string_create("WRITE"); // ASSIGN?
+    opcode[ 9] = coco_string_create("CONST"); // NUMBERS, FLOATS, STRINGS, BOOLS
+    opcode[10] = coco_string_create("FCALL"); // CALL FUNCTION
+    opcode[11] = coco_string_create("RETURN");// RETURN FROM A FUNCTION
+    opcode[12] = coco_string_create("GOTO ");
+    opcode[13] = coco_string_create("GOTOF"); // GOTO WHEN FALSE
+    opcode[14] = coco_string_create("FJUMP"); // JUMP TO A FUNCTION
+    opcode[15] = coco_string_create("READ "); // READ VARIABLES
+    opcode[16] = coco_string_create("WRITE"); // WRITE CONSTANTS ON MEMORY
+    opcode[17] = coco_string_create("PRINT");  
+    opcode[18] = coco_string_create("NEQU");  
+    //add ERA (CHECK THERE'S MEMORY STACK AVAILABLE)load memory context for next instruction
 
-    code    = new char[3000];
-    globals = new int[100];
-    stack   = new int[100];
+    code.push_back({GOTO, -1, -1, -1}); //jump to main when found
+    operatorStack = std::stack<int>();
 
+    avail = new Avail();
+    
     programStart = 0;
-
     programCounter = 1;
 
+    initializeSemanticCube();
+    
+    // THIS MAY WORK FOR HANDLING MEMORY IN .OBJ FILE
+    // constIntCounter = 5000;
+    // constFloatCounter = 6000;
+    // constBoolCounter = 7000;
+    // constStringCounter = 8000;
 }
 
 CodeGenerator::~CodeGenerator() {
@@ -55,41 +70,147 @@ CodeGenerator::~CodeGenerator() {
     coco_string_delete(opcode[10]);
     coco_string_delete(opcode[11]);
     coco_string_delete(opcode[12]);
+    coco_string_delete(opcode[13]);
+    coco_string_delete(opcode[14]);
+    coco_string_delete(opcode[15]);
+    coco_string_delete(opcode[16]);
+    coco_string_delete(opcode[17]);
+    coco_string_delete(opcode[18]);
 }
-
 //----- code generation methods -----
 
-void CodeGenerator::Emit(int op) {
-    code[ programCounter++ ] = (char) op; // why char
+void CodeGenerator::Emit(int op, int arg1, int arg2, int result) {
+    std::vector<int> temp = { op, arg1, arg2, result };
+    code.push_back(temp);
+    programCounter++;
 }
 
+void CodeGenerator::getAddOpResultType(int& resultType) {
+    if (typeStack.empty() || operandStack.empty() || operatorStack.empty()) return; // maybe early returns should assign type?? NULL?
+    if (operatorStack.top() != ADD && operatorStack.top() != SUB) return;
+       
+    int rightOperand = operandStack.top();
+    operandStack.pop();
+    
+    int rightType = typeStack.top();
+    typeStack.pop();
+    
+    int leftOperand = operandStack.top();
+    operandStack.pop();
+    
+    int leftType = typeStack.top();
+    typeStack.top();
 
-void CodeGenerator::Emit (int op, int val) {
-    Emit(op);
-    Emit(val>>8); // why
-    Emit(val);
+
+    int addOperator = operatorStack.top();
+    operatorStack.pop();
+
+   resultType = SemanticCube.at(leftType).at(addOperator).at(rightType);
+
+    std::cout << resultType << std::endl;
+    std::cout << rightType << std::endl;
+    std::cout << leftType << std::endl;
+    std::cout <<  addOperator << std::endl;
+    if (resultType == ERROR) {
+        throw std::invalid_argument("this types are not compatible for add operation!");
+    }
+
+    int result = avail -> next();
+    code.push_back({addOperator, leftOperand, rightOperand, result});
+    operandStack.push(result);
+    typeStack.push(resultType);
+    //If any operand were a temporal space,
+    //return it to AVAIL
 }
 
-void CodeGenerator::Patch(int adr, int val) {}
+void CodeGenerator::getRelOpResultType(int& resultType) {
+    if (typeStack.empty() || operandStack.empty() || operatorStack.empty()) return; // maybe early returns should assign type?? NULL?
+    if (operatorStack.top() != EQU && operatorStack.top() != GTR && operatorStack.top() != LSS && operatorStack.top() !=  NEQU) return;
+       
+    int rightOperand = operandStack.top();
+    operandStack.pop();
+    
+    int rightType = typeStack.top();
+    typeStack.pop();
+    
+    int leftOperand = operandStack.top();
+    operandStack.pop();
+    
+    int leftType = typeStack.top();
+    typeStack.top();
 
-void CodeGenerator::Decode() {}
+    int relOperator = operatorStack.top();
+    operatorStack.pop();
 
-//----- interpreter methods -----
+    resultType = SemanticCube.at(leftType).at(relOperator).at(rightType);
 
-int CodeGenerator::Next () {}
+    if (resultType == ERROR) {
+        throw std::invalid_argument("this types are not compatible for logical expression!");
+    }
 
-int CodeGenerator::Next2 () {}
+    int result = avail -> next();
+    code.push_back({relOperator, leftOperand, rightOperand, result});
+    operandStack.push(result);
+    typeStack.push(resultType);
 
-int CodeGenerator::Int(bool b) {}
+    //If any operand were a temporal space,
+    //return it to AVAIL
+}
 
-void CodeGenerator::Push(int val) {}
+void CodeGenerator::getMulOpResultType(int& resultType) {
+    if (typeStack.empty() || operandStack.empty() || operatorStack.empty()) return; // maybe early returns should assign type?? NULL?
+    if (operatorStack.top() != MUL && operatorStack.top() != DIV) return;
+       
+    int rightOperand = operandStack.top();
+    operandStack.pop();
+    
+    int rightType = typeStack.top();
+    typeStack.pop();
+    
+    int leftOperand = operandStack.top();
+    operandStack.pop();
+    
+    int leftType = typeStack.top();
+    typeStack.top();
 
-int CodeGenerator::Pop(){}
+    int mulOperator = operatorStack.top();
+    operatorStack.pop();
 
-int CodeGenerator::ReadInt(FILE* s){}
+    resultType = SemanticCube.at(leftType).at(mulOperator).at(rightType);
 
-void CodeGenerator::Interpret(char* data) {}
+    if (resultType == ERROR) {
 
+        throw std::invalid_argument("this types are not compatible for mul operation!");
+    }
+
+    int result = avail -> next();
+    code.push_back({mulOperator, leftOperand, rightOperand, result});
+    operandStack.push(result);
+    typeStack.push(resultType);
+
+    //If any operand were a temporal space,
+    //return it to AVAIL
+}
+
+// void CodeGenerator::pushToConstIntMap(int value){
+//     constIntAddress[constIntCounter] = value;
+//     constIntCounter++;
+// }
+
+// void CodeGenerator::pushToConstFloatMap(float value){
+//     constFloatAddress[constFloatCounter] = value;
+//     constFloatCounter++;
+// }
+
+// void CodeGenerator::pushToConstBoolMap(bool value){
+//     constBoolAddress[constBoolCounter] = value;
+//     constBoolCounter++;
+// }
+
+// void CodeGenerator::pushToConstStringMap(std::string value){
+//     constStringAddress[constStringCounter] = value;
+//     constStringCounter++;
+// }
 }
 
 

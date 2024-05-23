@@ -2,19 +2,31 @@ Program {
     int variable;
     float instagram;
     void whatsapp;
-    variable;
-
+    boolean facebook;
     function void arg(int fff,f; float asdsfas,asdfas;){};
     function int sum(){};
 
+    variable = 23 - 1;
+    int jaloIntInt;
+    instagram = 23.8 + 23.0;
+    int jaloFloatFloat;
+    instagram = variable + 23.0;
+    int jaloIntFloat;
 
-    sum();
-    whatsapp = variable + 23;
-    instagram = variable + sum() + 23;
     function void reddit (int redditVar;){redditVar=3;};
     if (1+2) {int ifVar;};
     float aca;
-    aca = 3.3;
-    variable = 3.3;
-    "sdfasdd";
+    aca = 23.0;
+    int JaloFloat;
+    instagram = variable + 23.0;
+    int JaloFloatInt;
+
+    aca = 2.2;
+    variable = 3;
+    int sddssd;
+        instagram = variable + 23.0;
+
+    variable = variable + sum() + 23;
+    int jaloIntFuncInt
+   
 }

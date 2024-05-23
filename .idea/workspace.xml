@@ -3,11 +3,37 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="zososcript" targetName="zososcript" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="aea111a4-3f57-4536-a5fb-936fae7c37db" name="Changes" comment="">
+    <list default="true" id="904d1b21-8d1f-4f17-a1c9-d44b74e74b7f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/zososcript.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/zososcript.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Zososcript.cpp.atg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ZososcriptGrammar.cpp.atg" beforeDir="false" afterPath="$PROJECT_DIR$/src/ZososcriptGrammar.cpp.atg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpp/CodeGenerator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/CodeGenerator.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpp/CodeGenerator.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/CodeGenerator.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpp/Parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/Parser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpp/Parser.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/Parser.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpp/SymbolTable.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/SymbolTable.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpp/SymbolTable.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/SymbolTable.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/cpp/Zoso" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/Zoso" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cpp/Zoso.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/Zoso.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/cpp/Zoso.dSYM/Contents/Resources/DWARF/Zoso" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/Zoso.dSYM/Contents/Resources/DWARF/Zoso" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/cpp/Zoso.dSYM/Contents/Resources/Relocations/aarch64/Zoso.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpp/Zoso.dSYM/Contents/Resources/Relocations/aarch64/Zoso.yml" afterDir="false" />
     </list>
@@ -16,40 +42,61 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2024" />
+    <option name="minorVersion" value="1.1" />
+    <option name="productBranch" value="Classic" />
+  </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 5
+  &quot;associatedIndex&quot;: 6
 }</component>
-  <component name="ProjectId" id="2gNaPneh0HpH1q55P27iQyexbHI" />
+  <component name="ProjectId" id="2gkiKIJWCn47Yy6KNeSplZXUyME" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RunManager">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="zososcript" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="zososcript" TARGET_NAME="zososcript" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="zososcript" RUN_TARGET_NAME="zososcript">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="aea111a4-3f57-4536-a5fb-936fae7c37db" name="Changes" comment="" />
-      <created>1715540468167</created>
+      <changelist id="904d1b21-8d1f-4f17-a1c9-d44b74e74b7f" name="Changes" comment="" />
+      <created>1716247911686</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1715540468167</updated>
-      <workItem from="1715540470151" duration="23000" />
-      <workItem from="1715548056190" duration="666000" />
+      <updated>1716247911686</updated>
+      <workItem from="1716247915819" duration="67000" />
     </task>
     <servers />
   </component>
