@@ -30,6 +30,7 @@ class CodeGenerator {
         std::stack<int> operandStack;
         std::stack<int> operatorStack;
         std::stack<int> typeStack;
+        std::stack<int> jumpStack;
 
         std::vector<std::vector<int> > code;
 

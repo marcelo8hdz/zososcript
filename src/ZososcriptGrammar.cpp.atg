@@ -92,15 +92,41 @@ PRODUCTIONS
 
     IfCase (. int type; .) = 
         "if" '(' LogicalExpresion<type> ')' '{'
-            (. symbolTable -> OpenScope(); .)
+            (. 
+                type = codeGenerator -> typeStack.top();
+                codeGenerator -> typeStack.pop();
+
+                int result = codeGenerator -> operandStack.top();
+                codeGenerator -> operandStack.pop();
+
+                codeGenerator -> code.push_back({GOTO, result, 0, 0});
+
+                codeGenerator -> jumpStack.push(codeGenerator -> code.size() - 1);
+                symbolTable -> OpenScope(); 
+            .)
             { Statement }
-            (. symbolTable -> CloseScope(); .)
+            (. 
+                symbolTable -> CloseScope(); 
+                
+            
+            .)
         '}'
-        [ "else" '{' 
+        [ "else" (. 
+            int gotofStack = codeGenerator -> jumpStack.top()
+            codeGenerator -> jumpStack.pop();
+            codeGenerator -> jumpStack.push(codeGenerator.size() - 1);
+            codeGenerator -> code.push_back({GOTOF, gotofStack, codeGenerator.size(), 0});
+        .) '{' 
             (. symbolTable -> OpenScope(); .)
             { Statement } 
             (. symbolTable -> CloseScope(); .)
         '}']
+        (. 
+            int end = condeGenerator -> jumpStack.top();
+            condeGenerator -> jumpStack.pop();
+            codeGenerator -> code[end] = {GOTOF, result, end, 0}
+            // fill gotof result
+        .)
     .
 
     WhileLoop (. int type; .) = 

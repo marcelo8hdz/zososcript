@@ -200,14 +200,32 @@ void Parser::IfCase() {
 		LogicalExpresion(type);
 		Expect(21 /* ")" */);
 		Expect(22 /* "{" */);
+		type = codeGenerator -> typeStack.top();
+		codeGenerator -> typeStack.pop();
+		
+		int result = codeGenerator -> operandStack.top();
+		codeGenerator -> operandStack.pop();
+		
+		codeGenerator -> code.push_back({GOTO, result, 0, 0});
+		
+		codeGenerator -> jumpStack.push(codeGenerator -> code.size() - 1);
 		symbolTable -> OpenScope(); 
+		
 		while (StartOf(2)) {
 			Statement();
 		}
 		symbolTable -> CloseScope(); 
+		
+		
+		
 		Expect(23 /* "}" */);
 		if (la->kind == 25 /* "else" */) {
 			Get();
+			int gotofStack = codeGenerator -> jumpStack.top()
+			codeGenerator -> jumpStack.pop();
+			codeGenerator -> jumpStack.push(codeGenerator.size() - 1);
+			codeGenerator -> code.push_back({GOTOF, gotofStack, codeGenerator.size(), 0});
+			
 			Expect(22 /* "{" */);
 			symbolTable -> OpenScope(); 
 			while (StartOf(2)) {
@@ -216,6 +234,11 @@ void Parser::IfCase() {
 			symbolTable -> CloseScope(); 
 			Expect(23 /* "}" */);
 		}
+		int end = condeGenerator -> jumpStack.top();
+		condeGenerator -> jumpStack.pop();
+		codeGenerator -> code[end] = {GOTOF, result, end, 0}
+		// fill gotof result
+		
 }
 
 void Parser::LogicalExpresion(int& type) {
@@ -273,7 +296,6 @@ void Parser::Factor(int& type) {
 			type = undef; 
 			Get();
 			type = decimal; 
-			std::cout<< "float" << std::endl;
 			swscanf(t -> val, L"%d", &decimalReference); 
 			int tempMemory = codeGenerator -> avail -> next();
 			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
