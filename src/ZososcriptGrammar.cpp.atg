@@ -125,7 +125,6 @@ PRODUCTIONS
             int end = codeGenerator -> jumpStack.top();
             codeGenerator -> jumpStack.pop();
             codeGenerator -> code[end] = {GOTOF, result, end, 0};
-            // fill gotof result
         .)
     .
 
@@ -137,12 +136,21 @@ PRODUCTIONS
         '}'
     .
 
-    Statement (. int type; wchar_t* name; Obj* obj; .) = (
-        | Ident<name> (.
+    VariableAssignation (. int type; wchar_t* name; Obj* obj; .) = 
+        Ident<name> (.
             obj = symbolTable -> Find(name);
-            type = obj -> type;
+            // type = obj -> type;
+            // codeGenerator -> operandStack.push(name);
+            // maybe push to typestack?
             int newtype = undef;
-        .) '=' LogicalExpresion<newtype> 
+        .) 
+        '=' //(. codeGenerator -> operatorStack.push(ASSIGN) .)
+        LogicalExpresion<newtype> 
+        (. codeGenerator -> code.push_back({ASSIGN, obj -> address, 0, 0}); .)
+    .
+
+    Statement = (
+        | VariableAssignation
         | FunctionDeclaration
         | VariableDeclaration
         | IfCase
@@ -240,7 +248,15 @@ END Zoso.
 /*-------------------
 TODO:
 
-FOR LOOPS
+ADD TYPES TO ASSIGN  (try with stacks else keep this way and throw error)
+
+CREATE VIRTUAL MACHINE
+
+CREATE PRINTS
+
+FOR LOOPS GRAMMAR AND EVERYTHING ELSE
+
+WHILE LOOPS QUADS
 
 SYMBOL TABLE TO HASHMAP INSTEAD OF LINKED LIST
 

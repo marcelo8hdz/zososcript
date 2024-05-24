@@ -14,7 +14,7 @@ Program {
     int jaloIntFloat;
 
     function void reddit (int redditVar;){redditVar=3;};
-    if (1+2) {int ifVar;};
+    if (1+2) {int ifVar;} else {instagram = 34+2;};
     float aca;
     aca = 23.0;
     int JaloFloat;
@@ -25,8 +25,5 @@ Program {
     variable = 3;
     int sddssd;
         instagram = variable + 23.0;
-
-    variable = variable + sum() + 23;
-    int jaloIntFuncInt
    
 }

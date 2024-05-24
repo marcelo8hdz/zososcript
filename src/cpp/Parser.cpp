@@ -153,19 +153,12 @@ void Parser::FunctionDeclaration() {
 }
 
 void Parser::Statement() {
-		int type; wchar_t* name; Obj* obj; 
 		switch (la->kind) {
 		case 20 /* ";" */: {
 			break;
 		}
 		case _ident: {
-			Ident(name);
-			obj = symbolTable -> Find(name);
-			type = obj -> type;
-			int newtype = undef;
-			
-			Expect(27 /* "=" */);
-			LogicalExpresion(newtype);
+			VariableAssignation();
 			break;
 		}
 		case 18 /* "function" */: {
@@ -237,7 +230,6 @@ void Parser::IfCase() {
 		int end = codeGenerator -> jumpStack.top();
 		codeGenerator -> jumpStack.pop();
 		codeGenerator -> code[end] = {GOTOF, result, end, 0};
-		// fill gotof result
 		
 }
 
@@ -265,6 +257,23 @@ void Parser::WhileLoop() {
 		}
 		symbolTable -> CloseScope(); 
 		Expect(23 /* "}" */);
+}
+
+void Parser::VariableAssignation() {
+		int type; wchar_t* name; Obj* obj; 
+		Ident(name);
+		obj = symbolTable -> Find(name);
+		obj->PrintObj(0);
+		// type = obj -> type;
+		// codeGenerator -> operandStack.push(name);
+		// maybe push to typestack?
+		
+		int newtype = undef;
+		
+		
+		Expect(27 /* "=" */);
+		LogicalExpresion(newtype);
+		codeGenerator -> code.push_back({ASSIGN, obj -> address, 0, 0}); 
 }
 
 void Parser::SimExpr(int& type) {

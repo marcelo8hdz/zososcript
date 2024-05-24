@@ -106,10 +106,6 @@ void CodeGenerator::getAddOpResultType(int& resultType) {
 
    resultType = SemanticCube.at(leftType).at(addOperator).at(rightType);
 
-    std::cout << resultType << std::endl;
-    std::cout << rightType << std::endl;
-    std::cout << leftType << std::endl;
-    std::cout <<  addOperator << std::endl;
     if (resultType == ERROR) {
         throw std::invalid_argument("this types are not compatible for add operation!");
     }
@@ -189,6 +185,15 @@ void CodeGenerator::getMulOpResultType(int& resultType) {
 
     //If any operand were a temporal space,
     //return it to AVAIL
+}
+
+void CodeGenerator::printQuads()  {
+    for (const auto& instruction : code) {
+        std::wcout << opcode[instruction[0]] << L" " 
+                   << instruction[1] << L" " 
+                   << instruction[2] << L" " 
+                   << instruction[3] << L"\n";
+    }
 }
 
 // void CodeGenerator::pushToConstIntMap(int value){

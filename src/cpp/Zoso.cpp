@@ -36,5 +36,7 @@ int main(int argc, char* argv[]) {
     coco_string_delete(inputFile);
     std::cout << "Parsing completed." << endl;
 
+    parser -> codeGenerator -> printQuads();
+
     return 0;
 }

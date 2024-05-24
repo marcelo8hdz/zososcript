@@ -95,6 +95,7 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
 	void IfCase();
 	void LogicalExpresion(int& type);
 	void WhileLoop();
+	void VariableAssignation();
 	void SimExpr(int& type);
 	void Term(int& type);
 	void Factor(int& type);

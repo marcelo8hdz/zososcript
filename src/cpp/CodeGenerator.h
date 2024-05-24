@@ -59,6 +59,7 @@ class CodeGenerator {
         void getRelOpResultType(int& resultType);
 
         void getMulOpResultType(int& resultType);
+        void printQuads();
     
         // THIS MAY WORK FOR .OBJ FILE???
         // void pushToConstIntMap(int value);
