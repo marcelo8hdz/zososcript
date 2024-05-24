@@ -208,7 +208,7 @@ void Parser::IfCase() {
 		
 		codeGenerator -> code.push_back({GOTO, result, 0, 0});
 		
-		codeGenerator -> jumpStack.push(codeGenerator -> code.size() - 1);
+		codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
 		symbolTable -> OpenScope(); 
 		
 		while (StartOf(2)) {
@@ -221,10 +221,10 @@ void Parser::IfCase() {
 		Expect(23 /* "}" */);
 		if (la->kind == 25 /* "else" */) {
 			Get();
-			int gotofStack = codeGenerator -> jumpStack.top()
+			int gotofStack = codeGenerator -> jumpStack.top();
 			codeGenerator -> jumpStack.pop();
-			codeGenerator -> jumpStack.push(codeGenerator.size() - 1);
-			codeGenerator -> code.push_back({GOTOF, gotofStack, codeGenerator.size(), 0});
+			codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
+			codeGenerator -> code.push_back({GOTOF, gotofStack, static_cast<int>(codeGenerator -> code.size()), 0});
 			
 			Expect(22 /* "{" */);
 			symbolTable -> OpenScope(); 
@@ -234,9 +234,9 @@ void Parser::IfCase() {
 			symbolTable -> CloseScope(); 
 			Expect(23 /* "}" */);
 		}
-		int end = condeGenerator -> jumpStack.top();
-		condeGenerator -> jumpStack.pop();
-		codeGenerator -> code[end] = {GOTOF, result, end, 0}
+		int end = codeGenerator -> jumpStack.top();
+		codeGenerator -> jumpStack.pop();
+		codeGenerator -> code[end] = {GOTOF, result, end, 0};
 		// fill gotof result
 		
 }

@@ -39,8 +39,7 @@ CodeGenerator::CodeGenerator() {
     opcode[18] = coco_string_create("NEQU");  
     //add ERA (CHECK THERE'S MEMORY STACK AVAILABLE)load memory context for next instruction
 
-    code.push_back({GOTO, -1, -1, -1}); //jump to main when found
-    operatorStack = std::stack<int>();
+    // code.push_back({GOTO, -1, -1, -1}); //jump to main when found
 
     avail = new Avail();
     
