@@ -5,86 +5,35 @@
 
 namespace Zoso {
 
-SymbolTable::SymbolTable(Parser* parser): undef(0), integer(1), boolean(2), decimal(3), var(0), function(1), scope(2) {
+SymbolTable::SymbolTable(Parser* parser): undef(0), integer(1), boolean(2), decimal(3), var(0), function(1) {
+	integerAddress = 5000 - 1;
+	floatAddress = 4000 - 1;
+	booleanAddress = 3000 - 1;
+	voidAddress = 2000 - 1;
 
-	errors = parser -> errors;
-	topScope = NULL;
-	currentLevel = -1;
-    
-	undefObj = new Obj();
-	undefObj -> name  = coco_string_create("undef"); 
-    undefObj -> type = undef; 
-    undefObj -> kind = var;
-	undefObj -> address= 0; 
-    undefObj -> level = 0; 
-    undefObj -> next = NULL;
+	// -1 for code readabililty (set address to intAddress++ in newObj)
 }
 
-void SymbolTable::OpenScope () {
-	Obj *newScope = new Obj();
-	
-	newScope -> name = coco_string_create(""); 
-	newScope -> kind = scope;
-	newScope -> locals = NULL; 
-	newScope -> nextAddress = 0;
-	newScope -> next = topScope; 
-	topScope = newScope;
-	
-	currentLevel++;
-}
-
-void SymbolTable::CloseScope () {
-	topScope = topScope -> next; 
-	currentLevel--;
-}
 // new object node in current scope 
-Obj* SymbolTable::NewObj (wchar_t* name, int kind, int type) {
-	Obj *topScopeNode, *last, *newObject = new Obj();
+Obj SymbolTable::NewObj (wchar_t* name, int kind, int type) {
+	int address;
+	if (type == integer) address = integerAddress++;
+	else if (type == decimal) address = floatAddress++;
+	else if (type == boolean) address = booleanAddress++;
+	else if (type == undef) address = voidAddress++;
+	
+	if (variables.count(coco_string_create(name))) throw std::invalid_argument("This variable already exists!");
 
-	newObject -> name = coco_string_create(name); 
-    newObject -> kind = kind; 
-    newObject -> type = type;
-	newObject -> level = currentLevel;
-
-	topScopeNode = topScope -> locals; 
-    last = NULL;
+	variables[coco_string_create(name)] = Obj(coco_string_create(name), address, type, kind);
     
-	while (topScopeNode != NULL) {
-		if (coco_string_equal(topScopeNode -> name, name)) throw std::invalid_argument("name already declared");
-		last = topScopeNode; 
-        topScopeNode = topScopeNode -> next;
-	}
-
-	if (last == NULL) topScope -> locals = newObject; 
-    else last -> next = newObject;
-
-	if (kind == var) newObject -> address = topScope -> nextAddress++;
-	newObject -> PrintObj(0);
-	return newObject;
+	return variables[coco_string_create(name)];
 
 }
 
-Obj* SymbolTable::Find (wchar_t* name) {
-	Obj *obj, *scope;
-	scope = topScope;
+Obj SymbolTable::Find(wchar_t* name) {
+	if (!variables.count(coco_string_create(name))) throw std::invalid_argument("Tried to find undeclared variable"); // name is undeclared
 	
-	while (scope != NULL) {  // for all open scopes
-		obj = scope -> locals;
-		while (obj != NULL) {  // for all objects in this scope
-			if (coco_string_equal(obj -> name, name)) return obj;
-			obj = obj -> next;
-		}
-		scope = scope -> next;
-	}
-
-	wchar_t str[100];
-	std::wstring wstr(str);
-
-	coco_swprintf(str, 100, L"%ls is undeclared", name);
-	
-	throw std::invalid_argument("Tried to find undeclared variable"); // name is undeclared
-	
-	return undefObj;
+	return variables[name];
 }
 
 }

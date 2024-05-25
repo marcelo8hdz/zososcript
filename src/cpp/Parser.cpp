@@ -138,61 +138,33 @@ void Parser::FunctionDeclaration() {
 		Ident(name);
 		symbolTable -> NewObj(name, function, type); 
 		Expect(19 /* "(" */);
-		symbolTable -> OpenScope(); 
+		Expect(20 /* ")" */);
+		Expect(21 /* "{" */);
 		while (StartOf(1)) {
-			VariableDeclaration();
-			Expect(20 /* ";" */);
-		}
-		Expect(21 /* ")" */);
-		Expect(22 /* "{" */);
-		while (StartOf(2)) {
 			Statement();
 		}
-		Expect(23 /* "}" */);
-		symbolTable -> CloseScope(); 
+		Expect(22 /* "}" */);
 }
 
 void Parser::Statement() {
-		switch (la->kind) {
-		case 20 /* ";" */: {
-			break;
-		}
-		case _ident: {
+		if (la->kind == 27 /* ";" */) {
+		} else if (la->kind == _ident) {
 			VariableAssignation();
-			break;
-		}
-		case 18 /* "function" */: {
-			FunctionDeclaration();
-			break;
-		}
-		case 14 /* "int" */: case 15 /* "boolean" */: case 16 /* "float" */: case 17 /* "void" */: {
-			VariableDeclaration();
-			break;
-		}
-		case 24 /* "if" */: {
+		} else if (la->kind == 23 /* "if" */) {
 			IfCase();
-			break;
-		}
-		case 26 /* "while" */: {
+		} else if (la->kind == 25 /* "while" */) {
 			WhileLoop();
-			break;
-		}
-		case _string: {
-			Get();
-			break;
-		}
-		default: SynErr(36); break;
-		}
-		Expect(20 /* ";" */);
+		} else SynErr(36);
+		Expect(27 /* ";" */);
 }
 
 void Parser::IfCase() {
 		int type; 
-		Expect(24 /* "if" */);
+		Expect(23 /* "if" */);
 		Expect(19 /* "(" */);
 		LogicalExpresion(type);
-		Expect(21 /* ")" */);
-		Expect(22 /* "{" */);
+		Expect(20 /* ")" */);
+		Expect(21 /* "{" */);
 		type = codeGenerator -> typeStack.top();
 		codeGenerator -> typeStack.pop();
 		
@@ -202,30 +174,23 @@ void Parser::IfCase() {
 		codeGenerator -> code.push_back({GOTO, result, 0, 0});
 		
 		codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
-		symbolTable -> OpenScope(); 
 		
-		while (StartOf(2)) {
+		while (StartOf(1)) {
 			Statement();
 		}
-		symbolTable -> CloseScope(); 
-		
-		
-		
-		Expect(23 /* "}" */);
-		if (la->kind == 25 /* "else" */) {
+		Expect(22 /* "}" */);
+		if (la->kind == 24 /* "else" */) {
 			Get();
 			int gotofStack = codeGenerator -> jumpStack.top();
 			codeGenerator -> jumpStack.pop();
 			codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
 			codeGenerator -> code.push_back({GOTOF, gotofStack, static_cast<int>(codeGenerator -> code.size()), 0});
 			
-			Expect(22 /* "{" */);
-			symbolTable -> OpenScope(); 
-			while (StartOf(2)) {
+			Expect(21 /* "{" */);
+			while (StartOf(1)) {
 				Statement();
 			}
-			symbolTable -> CloseScope(); 
-			Expect(23 /* "}" */);
+			Expect(22 /* "}" */);
 		}
 		int end = codeGenerator -> jumpStack.top();
 		codeGenerator -> jumpStack.pop();
@@ -236,7 +201,7 @@ void Parser::IfCase() {
 void Parser::LogicalExpresion(int& type) {
 		int nextType; int op;
 		SimExpr(type);
-		while (StartOf(3)) {
+		while (StartOf(2)) {
 			RelOp(op);
 			SimExpr(nextType);
 			codeGenerator -> getRelOpResultType(nextType); 
@@ -246,31 +211,29 @@ void Parser::LogicalExpresion(int& type) {
 
 void Parser::WhileLoop() {
 		int type; 
-		Expect(26 /* "while" */);
+		Expect(25 /* "while" */);
 		Expect(19 /* "(" */);
 		LogicalExpresion(type);
-		Expect(21 /* ")" */);
-		Expect(22 /* "{" */);
-		symbolTable -> OpenScope(); 
-		while (StartOf(2)) {
+		Expect(20 /* ")" */);
+		Expect(21 /* "{" */);
+		while (StartOf(1)) {
 			Statement();
 		}
-		symbolTable -> CloseScope(); 
-		Expect(23 /* "}" */);
+		Expect(22 /* "}" */);
 }
 
 void Parser::VariableAssignation() {
-		int type; wchar_t* name; Obj* obj; 
+		int type; wchar_t* name; Obj obj; 
 		Ident(name);
 		obj = symbolTable -> Find(name);
-		// type = obj -> type;
+		// type = obj.type;
 		// codeGenerator -> operandStack.push(name);
-		// maybe push to typestack?
+		// push to typestack
 		int newtype = undef;
 		
-		Expect(27 /* "=" */);
+		Expect(26 /* "=" */);
 		LogicalExpresion(newtype);
-		codeGenerator -> code.push_back({ASSIGN, obj -> address, 0, 0}); 
+		codeGenerator -> code.push_back({ASSIGN, obj.address, 0, 0}); 
 }
 
 void Parser::SimExpr(int& type) {
@@ -296,7 +259,7 @@ void Parser::Term(int& type) {
 }
 
 void Parser::Factor(int& type) {
-		wchar_t* name;  Obj* obj;  int numberReference; float decimalReference;
+		wchar_t* name;  Obj obj;  int numberReference; float decimalReference;
 		switch (la->kind) {
 		case _float: {
 			type = undef; 
@@ -326,11 +289,11 @@ void Parser::Factor(int& type) {
 		case _ident: {
 			Ident(name);
 			obj = symbolTable -> Find(name);
-			type = obj -> type;
-			codeGenerator -> operandStack.push(obj -> address);
-			codeGenerator -> typeStack.push(obj -> type);
+			type = obj.type;
+			codeGenerator -> operandStack.push(obj.address);
+			codeGenerator -> typeStack.push(obj.type);
 			
-			if (obj -> kind != var) throw std::invalid_argument("identifier not a variable");  //use symbol table use else if when functions
+			if (obj.kind != var) throw std::invalid_argument("identifier not a variable");  //use symbol table use else if when functions
 			
 			break;
 		}
@@ -338,7 +301,7 @@ void Parser::Factor(int& type) {
 			Get();
 			codeGenerator -> operatorStack.push(PARENTHESIS); 
 			SimExpr(type);
-			Expect(21 /* ")" */);
+			Expect(20 /* ")" */);
 			codeGenerator -> operatorStack.pop(); 
 			break;
 		}
@@ -374,13 +337,18 @@ void Parser::Factor(int& type) {
 void Parser::Zoso() {
 		wchar_t* name; InitDeclarations(); 
 		Expect(30 /* "Program" */);
-		symbolTable -> OpenScope(); 
-		Expect(22 /* "{" */);
-		while (StartOf(2)) {
+		Ident(name);
+		Expect(27 /* ";" */);
+		while (StartOf(3)) {
+			if (la->kind == 18 /* "function" */) {
+				FunctionDeclaration();
+			} else {
+				VariableDeclaration();
+			}
+		}
+		while (StartOf(1)) {
 			Statement();
 		}
-		Expect(23 /* "}" */);
-		symbolTable -> CloseScope(); 
 }
 
 
@@ -501,9 +469,9 @@ bool Parser::StartOf(int s) {
 
 	static bool set[4][33] = {
 		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x},
-		{x,x,x,x, x,x,x,x, x,x,x,x, x,x,T,T, T,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x},
-		{x,T,T,x, x,x,x,x, x,x,x,x, x,x,T,T, T,T,T,x, T,x,x,x, T,x,T,x, x,x,x,x, x},
-		{x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x}
+		{x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,T, x,T,x,T, x,x,x,x, x},
+		{x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x},
+		{x,x,x,x, x,x,x,x, x,x,x,x, x,x,T,T, T,T,T,x, x,x,x,x, x,x,x,x, x,x,x,x, x}
 	};
 
 
@@ -544,14 +512,14 @@ void Errors::SynErr(int line, int col, int n) {
 			case 17: s = coco_string_create(L"\"void\" expected"); break;
 			case 18: s = coco_string_create(L"\"function\" expected"); break;
 			case 19: s = coco_string_create(L"\"(\" expected"); break;
-			case 20: s = coco_string_create(L"\";\" expected"); break;
-			case 21: s = coco_string_create(L"\")\" expected"); break;
-			case 22: s = coco_string_create(L"\"{\" expected"); break;
-			case 23: s = coco_string_create(L"\"}\" expected"); break;
-			case 24: s = coco_string_create(L"\"if\" expected"); break;
-			case 25: s = coco_string_create(L"\"else\" expected"); break;
-			case 26: s = coco_string_create(L"\"while\" expected"); break;
-			case 27: s = coco_string_create(L"\"=\" expected"); break;
+			case 20: s = coco_string_create(L"\")\" expected"); break;
+			case 21: s = coco_string_create(L"\"{\" expected"); break;
+			case 22: s = coco_string_create(L"\"}\" expected"); break;
+			case 23: s = coco_string_create(L"\"if\" expected"); break;
+			case 24: s = coco_string_create(L"\"else\" expected"); break;
+			case 25: s = coco_string_create(L"\"while\" expected"); break;
+			case 26: s = coco_string_create(L"\"=\" expected"); break;
+			case 27: s = coco_string_create(L"\";\" expected"); break;
 			case 28: s = coco_string_create(L"\"false\" expected"); break;
 			case 29: s = coco_string_create(L"\"true\" expected"); break;
 			case 30: s = coco_string_create(L"\"Program\" expected"); break;

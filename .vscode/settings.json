@@ -53,6 +53,8 @@
         "optional": "cpp",
         "unordered_map": "cpp",
         "__tree": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "source_location": "cpp",
+        "typeindex": "cpp"
     }
 }
