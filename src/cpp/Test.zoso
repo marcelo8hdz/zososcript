@@ -6,15 +6,22 @@ Program {
     function void arg(int fff,f; float asdsfas,asdfas;){};
     function int sum(){};
 
-    variable = 23 - 1;
+    variable = 23 + -1 * 34 - (3 - 2 * 30);
     int jaloIntInt;
     instagram = 23.8 + 23.0;
     int jaloFloatFloat;
     instagram = variable + 23.0;
     int jaloIntFloat;
 
+
+    boolean argosto;
+    boolean args;
+    argosto = false;
+    args = true;
+
     function void reddit (int redditVar;){redditVar=3;};
     if (1+2) {int ifVar;} else {instagram = 34+2;};
+    if (1+2 < 3423) {int ifVar2;} else {instagram = 34+2;};
     float aca;
     aca = 23.0;
     int JaloFloat;

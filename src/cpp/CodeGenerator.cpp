@@ -195,26 +195,18 @@ void CodeGenerator::printQuads()  {
                    << instruction[3] << L"\n";
     }
 }
-
-// void CodeGenerator::pushToConstIntMap(int value){
-//     constIntAddress[constIntCounter] = value;
-//     constIntCounter++;
-// }
-
-// void CodeGenerator::pushToConstFloatMap(float value){
-//     constFloatAddress[constFloatCounter] = value;
-//     constFloatCounter++;
-// }
-
-// void CodeGenerator::pushToConstBoolMap(bool value){
-//     constBoolAddress[constBoolCounter] = value;
-//     constBoolCounter++;
-// }
-
-// void CodeGenerator::pushToConstStringMap(std::string value){
-//     constStringAddress[constStringCounter] = value;
-//     constStringCounter++;
-// }
+void CodeGenerator::printConstantMap() {
+    for (const auto& [key, value] : constantMap) {
+        std::cout << "Address: " << key << " Value: ";
+        if (const int* intValue = boost::get<int>(&value)) {
+            std::cout << *intValue << "\n";
+        } else if (const float* floatValue = boost::get<float>(&value)) {
+            std::cout << *floatValue << "\n";
+        } else if (const bool* boolValue = boost::get<bool>(&value)) {
+            std::cout << (*boolValue ? "true" : "false") << "\n";
+        }
+    }
+}
 }
 
 

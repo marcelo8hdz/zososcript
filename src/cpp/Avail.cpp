@@ -13,3 +13,7 @@ void Avail::reset_counter() {
 }
 
 
+void Avail::pushValueToMemory(int value) {
+    values[current] = value;
+}
+

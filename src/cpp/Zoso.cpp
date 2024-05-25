@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Parsing completed." << endl;
 
     parser -> codeGenerator -> printQuads();
+    parser -> codeGenerator -> printConstantMap();
 
     return 0;
 }

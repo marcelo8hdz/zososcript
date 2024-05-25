@@ -191,6 +191,7 @@ PRODUCTIONS
             int tempMemory = codeGenerator -> avail -> next();
             codeGenerator -> operandStack.push(tempMemory); // need temporal address here
             codeGenerator -> typeStack.push(type); 
+            codeGenerator -> constantMap[tempMemory] = decimalReference;
         .) 
         | number (. 
             type = integer; 
@@ -198,6 +199,8 @@ PRODUCTIONS
             int tempMemory = codeGenerator -> avail -> next();
             codeGenerator -> operandStack.push(tempMemory); // need temporal address here
             codeGenerator -> typeStack.push(type); 
+            codeGenerator -> constantMap[tempMemory] = numberReference;
+
         .) 
         | Ident<name> (.
                 obj = symbolTable -> Find(name);
@@ -225,14 +228,16 @@ PRODUCTIONS
             type = boolean;
             int tempMemory = codeGenerator -> avail -> next();
             codeGenerator -> operandStack.push(tempMemory); // need temporal address here
-            codeGenerator -> typeStack.push(type);     
+            codeGenerator -> typeStack.push(type);   
+            codeGenerator -> constantMap[tempMemory] = false;  
         .)
             
         | "true" (.
             type = boolean;
             int tempMemory = codeGenerator -> avail -> next();
             codeGenerator -> operandStack.push(tempMemory); // need temporal address here
-            codeGenerator -> typeStack.push(type);     
+            codeGenerator -> typeStack.push(type);   
+            codeGenerator -> constantMap[tempMemory] = true;    
         .)
     .
 
@@ -250,7 +255,11 @@ TODO:
 
 ADD TYPES TO ASSIGN  (try with stacks else keep this way and throw error)
 
+CHECK FLOATS AND NEGATIVES FOR CONSTANT MAP
+
 CREATE VIRTUAL MACHINE
+
+ADD DECLARATION OF BOOLEANS
 
 CREATE PRINTS
 
@@ -259,5 +268,7 @@ FOR LOOPS GRAMMAR AND EVERYTHING ELSE
 WHILE LOOPS QUADS
 
 SYMBOL TABLE TO HASHMAP INSTEAD OF LINKED LIST
+
+CHANGE PROGRAM TO ONE LINER -> PROGRAM IDENT;
 
 -----------------------------------------------------*/

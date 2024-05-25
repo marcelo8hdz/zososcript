@@ -9,6 +9,8 @@
 #include <vector>
 #include <stack>
 #include <map>
+#include <iostream>
+#include "boost/variant.hpp"
 
 namespace Zoso {
 
@@ -31,20 +33,9 @@ class CodeGenerator {
         std::stack<int> operatorStack;
         std::stack<int> typeStack;
         std::stack<int> jumpStack;
-
+        
         std::vector<std::vector<int> > code;
-
-        // std::map<int, int>  constIntAddress;
-        // int constIntCounter;
-        
-        // std::map<int, float> constFloatAddress;
-        // int constFloatCounter;
-        
-        // std::map<int, bool> constBoolAddress;
-        // int constBoolCounter;
-        
-        // std::map<int, std::string>  constStringAddress;
-        // int constStringCounter;
+        std::map<int, boost::variant<int, float, bool> > constantMap;
         
         
         CodeGenerator();
@@ -59,13 +50,10 @@ class CodeGenerator {
         void getRelOpResultType(int& resultType);
 
         void getMulOpResultType(int& resultType);
+        
         void printQuads();
-    
-        // THIS MAY WORK FOR .OBJ FILE???
-        // void pushToConstIntMap(int value);
-        // void pushToConstFloatMap(float value);
-        // void pushToConstBoolMap(bool value);
-        // void pushToConstStringMap(std::string value);
+
+        void printConstantMap();
 };
 
 }; // namespace

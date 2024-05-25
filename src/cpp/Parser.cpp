@@ -263,13 +263,10 @@ void Parser::VariableAssignation() {
 		int type; wchar_t* name; Obj* obj; 
 		Ident(name);
 		obj = symbolTable -> Find(name);
-		obj->PrintObj(0);
 		// type = obj -> type;
 		// codeGenerator -> operandStack.push(name);
 		// maybe push to typestack?
-		
 		int newtype = undef;
-		
 		
 		Expect(27 /* "=" */);
 		LogicalExpresion(newtype);
@@ -309,6 +306,7 @@ void Parser::Factor(int& type) {
 			int tempMemory = codeGenerator -> avail -> next();
 			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
 			codeGenerator -> typeStack.push(type); 
+			codeGenerator -> constantMap[tempMemory] = decimalReference;
 			
 			break;
 		}
@@ -319,6 +317,8 @@ void Parser::Factor(int& type) {
 			int tempMemory = codeGenerator -> avail -> next();
 			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
 			codeGenerator -> typeStack.push(type); 
+			codeGenerator -> constantMap[tempMemory] = numberReference;
+			
 			
 			break;
 		}
@@ -351,7 +351,8 @@ void Parser::Factor(int& type) {
 			type = boolean;
 			int tempMemory = codeGenerator -> avail -> next();
 			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
-			codeGenerator -> typeStack.push(type);     
+			codeGenerator -> typeStack.push(type);   
+			codeGenerator -> constantMap[tempMemory] = false;  
 			
 			break;
 		}
@@ -360,7 +361,8 @@ void Parser::Factor(int& type) {
 			type = boolean;
 			int tempMemory = codeGenerator -> avail -> next();
 			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
-			codeGenerator -> typeStack.push(type);     
+			codeGenerator -> typeStack.push(type);   
+			codeGenerator -> constantMap[tempMemory] = true;    
 			
 			break;
 		}
