@@ -1,0 +1,3 @@
+/Users/marcelohernandez/Documents/compiladores/zososcript/cmake-build-debug/CMakeFiles/zososcript.dir
+/Users/marcelohernandez/Documents/compiladores/zososcript/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/marcelohernandez/Documents/compiladores/zososcript/cmake-build-debug/CMakeFiles/rebuild_cache.dir

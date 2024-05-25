@@ -10,30 +10,16 @@ namespace Zoso {
 class Parser;
 class Errors;
 
-class Obj {  // variable in symbol table
-public:
+struct Obj {  // variable in symbol table
 	wchar_t* name;		// name of the object
+	int address;		// address in memory or start of function
 	int type;		// type of the object 
 	int kind;		// var, function
-	int address;		// address in memory or start of function
-
-	Obj(wchar_t* name, int type, int kind, int address) {
-		this -> name = name;
-		this -> type = type;
-		this -> kind = kind;
-		this -> address = address;
-	}
-
-	~Obj() {
-		coco_string_delete(name);
-	}
-
-	void PrintObj(int indentLevel);
 };
 
 class SymbolTable {
 public:
-	std::map<wchar_t*, Obj> variables;
+	std::map<std::wstring, Obj> variables;
 	
 	const int undef, integer, boolean, decimal;
 	const int var, function;
