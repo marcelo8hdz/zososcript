@@ -42,7 +42,7 @@ CHARACTERS
 TOKENS
     ident = letter { letter | digit }.
     string = quote { letter | digit } quote.
-    number = digit {digit}.
+    number = ['-'] digit {digit}.
     float = digit {digit} '.' digit {digit}. 
 
 IGNORE cr + lf + tab + space
@@ -256,7 +256,7 @@ TODO:
 
 ADD TYPES TO ASSIGN  (try with stacks else keep this way and throw error)
 
-CHECK FLOATS AND NEGATIVES FOR CONSTANT MAP
+NEGATIVES FOR CONSTANT MAP FIGURE OUT NUMBER
 
 CREATE VIRTUAL MACHINE
 

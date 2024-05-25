@@ -1,5 +1,6 @@
 Program {
     int variable;
+    variable = -1
     float instagram;
     void whatsapp;
     boolean facebook;
