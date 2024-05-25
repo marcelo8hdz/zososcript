@@ -302,7 +302,8 @@ void Parser::Factor(int& type) {
 			type = undef; 
 			Get();
 			type = decimal; 
-			swscanf(t -> val, L"%d", &decimalReference); 
+			wchar_t * pEnd;
+			decimalReference = wcstof(t -> val, &pEnd); 
 			int tempMemory = codeGenerator -> avail -> next();
 			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
 			codeGenerator -> typeStack.push(type); 
