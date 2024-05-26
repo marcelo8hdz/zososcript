@@ -225,14 +225,15 @@ void Parser::VariableAssignation() {
 		int type; wchar_t* name; Obj obj; 
 		Ident(name);
 		obj = symbolTable -> Find(name);
-		// type = obj.type;
-		// codeGenerator -> operandStack.push(name);
-		// push to typestack
+		type = obj.type;
+		codeGenerator -> operandStack.push(obj.address);
+		codeGenerator -> typeStack.push(type); 
 		int newtype = undef;
 		
 		Expect(27 /* "=" */);
+		codeGenerator -> operatorStack.push(ASSIGN) 
 		LogicalExpresion(newtype);
-		codeGenerator -> code.push_back({ASSIGN, obj.address, 0, 0}); 
+		codeGenerator -> getAssignResultType(nextType); ; 
 		Expect(14 /* ";" */);
 }
 
@@ -268,7 +269,7 @@ void Parser::Factor(int& type) {
 			wchar_t * pEnd;
 			decimalReference = wcstof(t -> val, &pEnd); 
 			int tempMemory = codeGenerator -> avail -> next();
-			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+			codeGenerator -> operandStack.push(tempMemory); 
 			codeGenerator -> typeStack.push(type); 
 			codeGenerator -> constantMap[tempMemory] = decimalReference;
 			
@@ -279,7 +280,7 @@ void Parser::Factor(int& type) {
 			type = integer; 
 			swscanf(t -> val, L"%d", &numberReference); 
 			int tempMemory = codeGenerator -> avail -> next();
-			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+			codeGenerator -> operandStack.push(tempMemory); 
 			codeGenerator -> typeStack.push(type); 
 			codeGenerator -> constantMap[tempMemory] = numberReference;
 			
@@ -289,7 +290,7 @@ void Parser::Factor(int& type) {
 			Get();
 			type = boolean;
 			int tempMemory = codeGenerator -> avail -> next();
-			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+			codeGenerator -> operandStack.push(tempMemory); 
 			codeGenerator -> typeStack.push(type);   
 			codeGenerator -> constantMap[tempMemory] = false;  
 			
@@ -299,7 +300,7 @@ void Parser::Factor(int& type) {
 			Get();
 			type = boolean;
 			int tempMemory = codeGenerator -> avail -> next();
-			codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+			codeGenerator -> operandStack.push(tempMemory); 
 			codeGenerator -> typeStack.push(type);   
 			codeGenerator -> constantMap[tempMemory] = true;    
 			

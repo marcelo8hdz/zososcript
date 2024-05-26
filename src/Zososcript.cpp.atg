@@ -45,6 +45,9 @@ TOKENS
     number = ['-'] digit {digit}.
     float = ['-'] digit {digit} '.' digit {digit}. 
 
+COMMENTS FROM "/*" TO "*/" NESTED
+COMMENTS FROM "//" TO '\n' 
+
 IGNORE cr + lf + tab + space
 
 PRODUCTIONS
@@ -130,13 +133,13 @@ PRODUCTIONS
     VariableAssignation (. int type; wchar_t* name; Obj obj; .) = 
         Ident<name> (.
             obj = symbolTable -> Find(name);
-            // type = obj.type;
-            // codeGenerator -> operandStack.push(name);
-            // push to typestack
+            type = obj.type;
+            codeGenerator -> operandStack.push(obj.address);
+            codeGenerator -> typeStack.push(type); 
             int newtype = undef;
         .) 
-        '=' //(. codeGenerator -> operatorStack.push(ASSIGN) .)
-        LogicalExpresion<newtype> (. codeGenerator -> code.push_back({ASSIGN, obj.address, 0, 0}); .)
+        '=' (. codeGenerator -> operatorStack.push(ASSIGN) .)
+        LogicalExpresion<newtype> (. codeGenerator -> getAssignResultType(nextType); ; .)
         ';'
     .
 
@@ -177,7 +180,7 @@ PRODUCTIONS
             wchar_t * pEnd;
             decimalReference = wcstof(t -> val, &pEnd); 
             int tempMemory = codeGenerator -> avail -> next();
-            codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+            codeGenerator -> operandStack.push(tempMemory); 
             codeGenerator -> typeStack.push(type); 
             codeGenerator -> constantMap[tempMemory] = decimalReference;
         .) 
@@ -185,21 +188,21 @@ PRODUCTIONS
             type = integer; 
             swscanf(t -> val, L"%d", &numberReference); 
             int tempMemory = codeGenerator -> avail -> next();
-            codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+            codeGenerator -> operandStack.push(tempMemory); 
             codeGenerator -> typeStack.push(type); 
             codeGenerator -> constantMap[tempMemory] = numberReference;
         .) 
         | "false" (. 
             type = boolean;
             int tempMemory = codeGenerator -> avail -> next();
-            codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+            codeGenerator -> operandStack.push(tempMemory); 
             codeGenerator -> typeStack.push(type);   
             codeGenerator -> constantMap[tempMemory] = false;  
         .)
         | "true" (.
             type = boolean;
             int tempMemory = codeGenerator -> avail -> next();
-            codeGenerator -> operandStack.push(tempMemory); // need temporal address here
+            codeGenerator -> operandStack.push(tempMemory); 
             codeGenerator -> typeStack.push(type);   
             codeGenerator -> constantMap[tempMemory] = true;    
         .)

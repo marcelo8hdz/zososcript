@@ -44,7 +44,7 @@ CodeGenerator::CodeGenerator() {
     avail = new Avail();
     
     programStart = 0;
-    programCounter = 1;
+    // programCounter = 1;
 
     initializeSemanticCube();
     
@@ -78,11 +78,11 @@ CodeGenerator::~CodeGenerator() {
 }
 //----- code generation methods -----
 
-void CodeGenerator::Emit(int op, int arg1, int arg2, int result) {
-    std::vector<int> temp = { op, arg1, arg2, result };
-    code.push_back(temp);
-    programCounter++;
-}
+// void CodeGenerator::Emit(int op, int arg1, int arg2, int result) {
+//     std::vector<int> temp = { op, arg1, arg2, result };
+//     code.push_back(temp);
+//     programCounter++;
+// }
 
 void CodeGenerator::getAddOpResultType(int& resultType) {
     if (typeStack.empty() || operandStack.empty() || operatorStack.empty()) return; // maybe early returns should assign type?? NULL?
@@ -207,6 +207,41 @@ void CodeGenerator::printConstantMap() {
         }
     }
 }
+
+void CodeGenerator::getAssignResultType(int& resultType) {
+    if (typeStack.empty() || operandStack.empty() || operatorStack.empty()) return; // maybe early returns should assign type?? NULL?
+    if (operatorStack.top() != ASSIGN) return;
+       
+    int rightOperand = operandStack.top();
+    operandStack.pop();
+    
+    int rightType = typeStack.top();
+    typeStack.pop();
+    
+    int leftOperand = operandStack.top();
+    operandStack.pop();
+    
+    int leftType = typeStack.top();
+    typeStack.top();
+
+
+    int assignOperator = operatorStack.top();
+    operatorStack.pop();
+
+   resultType = SemanticCube.at(leftType).at(assignOperator).at(rightType);
+
+    if (resultType == ERROR) {
+        throw std::invalid_argument("this types are not compatible for add operation!");
+    }
+
+    int result = avail -> next();
+    code.push_back({assignOperator, leftOperand, rightOperand, result});
+    operandStack.push(result);
+    typeStack.push(resultType);
+    //If any operand were a temporal space,
+    //return it to AVAIL
+}
+
 }
 
 
