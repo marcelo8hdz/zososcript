@@ -25,9 +25,6 @@ class CodeGenerator {
 
         wchar_t* opcode[21];
 
-        int programStart;		// address of first instruction of main program
-        // int programCounter;	// program counter
-
         Avail* avail;
         std::stack<int> operandStack;
         std::stack<int> operatorStack;
@@ -40,8 +37,6 @@ class CodeGenerator {
         
         CodeGenerator();
         ~CodeGenerator();
-
-        void Emit(int op, int arg1, int arg2, int result);
 
         void getAddOpResultType(int& resultType);
         void getRelOpResultType(int& resultType);

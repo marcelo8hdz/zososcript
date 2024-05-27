@@ -18,26 +18,28 @@ int main(int argc, char* argv[]) {
         cerr << "Error: Could not open the file '" << argv[1] << "' for reading." << endl;
         return 1;
     }
-    std::cout << "read file" << std::endl;
+    cout << "read file" << endl;
 
     Scanner* scanner = new Scanner(inputFile);
-    std::cout << "created scanner" << std::endl;
+    cout << "created scanner" << endl;
     Parser* parser = new Parser(scanner);
-    std::cout << "created parser" << std::endl;
+    cout << "created parser" << endl;
     
 
     parser -> symbolTable = new SymbolTable(parser);
     parser -> codeGenerator = new CodeGenerator();
-    printf("created symbolTable");
+    printf("created symbolTable\n");
     
     parser -> Parse();
-    printf("parsed");
+    printf("parsed\n");
 
     coco_string_delete(inputFile);
-    std::cout << "Parsing completed." << endl;
+    cout << "Parsing completed.\n" << endl;
 
     parser -> codeGenerator -> printQuads();
     parser -> codeGenerator -> printConstantMap();
+
+    
 
     return 0;
 }

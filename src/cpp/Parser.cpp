@@ -231,9 +231,9 @@ void Parser::VariableAssignation() {
 		int newtype = undef;
 		
 		Expect(27 /* "=" */);
-		codeGenerator -> operatorStack.push(ASSIGN) 
+		codeGenerator -> operatorStack.push(ASSIGN); 
 		LogicalExpresion(newtype);
-		codeGenerator -> getAssignResultType(nextType); ; 
+		codeGenerator -> getAssignResultType(newtype); ; 
 		Expect(14 /* ";" */);
 }
 

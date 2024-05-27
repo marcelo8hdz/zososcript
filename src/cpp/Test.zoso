@@ -2,29 +2,32 @@ Program Test;
     float aca;
     float instagram;
     void whatsapp;
-    boolean facebook;
     function int sum(){}
     int variable;
     int jaloIntInt;
     int jaloFloatFloat;
     int jaloIntFloat;
-    boolean argosto;
-    boolean args;
     int JaloFloatInt;
     int JaloFloat;
+    boolean argosto;
+    boolean args;
+    boolean facebook;
     
+    //asfasdfasd
+
     
     instagram = variable + 23.0;
     variable = -1;
     argosto = false;
-    variable = 23 + -1 * 34 - (3 - 2 * 30);
+    variable = 23 + -1 * 34 - (3 - 2 * -30);
     instagram = 23.8 + 23.0;
+    instagram = -23.8;
     instagram = variable + 23.0;
     args = true;
     jaloIntInt = 1;
 
 
-    if (1+2) {instagram = 234 + instagram *23;} else {instagram = 34+2;}
+    if (1+2) {instagram = 234 + instagram * 23;} else {instagram = 34+2;}
     if (1+2 < 3423) {instagram = 234 + instagram *23;} else {instagram = 34+2;}
 
     aca = 23.0;

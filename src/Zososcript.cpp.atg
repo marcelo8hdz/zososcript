@@ -138,8 +138,8 @@ PRODUCTIONS
             codeGenerator -> typeStack.push(type); 
             int newtype = undef;
         .) 
-        '=' (. codeGenerator -> operatorStack.push(ASSIGN) .)
-        LogicalExpresion<newtype> (. codeGenerator -> getAssignResultType(nextType); ; .)
+        '=' (. codeGenerator -> operatorStack.push(ASSIGN); .)
+        LogicalExpresion<newtype> (. codeGenerator -> getAssignResultType(newtype); ; .)
         ';'
     .
 
@@ -240,9 +240,9 @@ END Zoso.
 /*-------------------
 TODO:
 
-CREATE VIRTUAL MACHINE
+FIX TYPE BUG ASSIGN CHECK TODO IN ASSIGN OP TYPE CODE GENERATOR METHOD
 
-ADD TYPES TO ASSIGN  (try with stacks else keep this way and throw error)
+CREATE VIRTUAL MACHINE
 
 CREATE PRINTS
 

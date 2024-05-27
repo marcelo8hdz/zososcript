@@ -1,6 +1,6 @@
 #include "Avail.h"
 
-Avail::Avail() : current(-1) {}
+Avail::Avail() : current(0) {}
 
 int Avail::next() {
     current++;

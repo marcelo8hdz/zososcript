@@ -39,20 +39,9 @@ CodeGenerator::CodeGenerator() {
     opcode[18] = coco_string_create("NEQU");  
     //add ERA (CHECK THERE'S MEMORY STACK AVAILABLE)load memory context for next instruction
 
-    // code.push_back({GOTO, -1, -1, -1}); //jump to main when found
-
     avail = new Avail();
-    
-    programStart = 0;
-    // programCounter = 1;
 
     initializeSemanticCube();
-    
-    // THIS MAY WORK FOR HANDLING MEMORY IN .OBJ FILE
-    // constIntCounter = 5000;
-    // constFloatCounter = 6000;
-    // constBoolCounter = 7000;
-    // constStringCounter = 8000;
 }
 
 CodeGenerator::~CodeGenerator() {
@@ -76,13 +65,6 @@ CodeGenerator::~CodeGenerator() {
     coco_string_delete(opcode[17]);
     coco_string_delete(opcode[18]);
 }
-//----- code generation methods -----
-
-// void CodeGenerator::Emit(int op, int arg1, int arg2, int result) {
-//     std::vector<int> temp = { op, arg1, arg2, result };
-//     code.push_back(temp);
-//     programCounter++;
-// }
 
 void CodeGenerator::getAddOpResultType(int& resultType) {
     if (typeStack.empty() || operandStack.empty() || operatorStack.empty()) return; // maybe early returns should assign type?? NULL?
@@ -187,6 +169,37 @@ void CodeGenerator::getMulOpResultType(int& resultType) {
     //return it to AVAIL
 }
 
+void CodeGenerator::getAssignResultType(int& resultType) {
+    if (typeStack.empty() || operandStack.empty() || operatorStack.empty()) return; // maybe early returns should assign type?? NULL?
+    if (operatorStack.top() != ASSIGN) return;
+    //check this switched the order of popping right and left (works but dont know why)
+    int leftOperand = operandStack.top();
+    operandStack.pop();
+    
+    int leftType = typeStack.top();
+    typeStack.top();
+
+    int rightOperand = operandStack.top();
+    operandStack.pop();
+    
+    int rightType = typeStack.top();
+    typeStack.pop();
+
+    int assignOperator = operatorStack.top();
+    operatorStack.pop();
+
+   resultType = SemanticCube.at(leftType).at(assignOperator).at(rightType);
+
+    if (resultType == ERROR) {
+        std::cout << leftType << rightType << std::endl;
+        throw std::invalid_argument("this types are not compatible for assign operation!");
+    }
+
+    code.push_back({assignOperator, leftOperand, rightOperand, 0});
+    //If any operand were a temporal space,
+    //return it to AVAIL
+}
+
 void CodeGenerator::printQuads()  {
     for (const auto& instruction : code) {
         std::wcout << opcode[instruction[0]] << L" " 
@@ -208,40 +221,4 @@ void CodeGenerator::printConstantMap() {
     }
 }
 
-void CodeGenerator::getAssignResultType(int& resultType) {
-    if (typeStack.empty() || operandStack.empty() || operatorStack.empty()) return; // maybe early returns should assign type?? NULL?
-    if (operatorStack.top() != ASSIGN) return;
-       
-    int rightOperand = operandStack.top();
-    operandStack.pop();
-    
-    int rightType = typeStack.top();
-    typeStack.pop();
-    
-    int leftOperand = operandStack.top();
-    operandStack.pop();
-    
-    int leftType = typeStack.top();
-    typeStack.top();
-
-
-    int assignOperator = operatorStack.top();
-    operatorStack.pop();
-
-   resultType = SemanticCube.at(leftType).at(assignOperator).at(rightType);
-
-    if (resultType == ERROR) {
-        throw std::invalid_argument("this types are not compatible for add operation!");
-    }
-
-    int result = avail -> next();
-    code.push_back({assignOperator, leftOperand, rightOperand, result});
-    operandStack.push(result);
-    typeStack.push(resultType);
-    //If any operand were a temporal space,
-    //return it to AVAIL
 }
-
-}
-
-
