@@ -170,7 +170,7 @@ void Parser::IfCase() {
 		int result = codeGenerator -> operandStack.top();
 		codeGenerator -> operandStack.pop();
 		
-		codeGenerator -> code.push_back({GOTO, result, 0, 0});
+		codeGenerator -> code.push_back({GOTO, 0, 0, result});
 		
 		codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
 		
@@ -193,7 +193,7 @@ void Parser::IfCase() {
 		}
 		int end = codeGenerator -> jumpStack.top();
 		codeGenerator -> jumpStack.pop();
-		codeGenerator -> code[end] = {GOTOF, result, end, 0};
+		codeGenerator -> code[end] = {GOTOF, result, 0, end};
 		
 }
 

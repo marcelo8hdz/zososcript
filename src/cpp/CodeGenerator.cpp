@@ -3,6 +3,7 @@
 #include "SemanticCube.h"
 
 #include <fstream>
+#include <sstream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <wchar.h>
@@ -237,15 +238,21 @@ void CodeGenerator::printConstantMapToFile(const std::string& filename) {
     file << "#include <boost/variant.hpp>\n\n";
     file << "std::map<int, boost::variant<int, float, bool>> constantMap = {\n";
     for (const auto& [key, value] : constantMap) {
-        file << "    {" << key << ", ";
+        file << "    {" << key << ", " << "boost::variant<int, float, bool>(";
         if (const int* intValue = boost::get<int>(&value)) {
             file << *intValue;
         } else if (const float* floatValue = boost::get<float>(&value)) {
-            file << *floatValue;
+            std::ostringstream oss;
+            oss << *floatValue;
+            std::string floatString = oss.str();
+            if (floatString.find('.') != std::string::npos) {
+                floatString += 'f';
+            }
+            file << floatString;
         } else if (const bool* boolValue = boost::get<bool>(&value)) {
             file << (*boolValue ? "true" : "false");
         }
-        file << "},\n";
+        file << ")},\n";
     }
     file << "};\n\n";
     file << "#endif // GENERATED_CONSTANTS_H\n";

@@ -2,7 +2,6 @@
 #include <string>
 #include <iostream>
 
-// Define the Semantic Cube as a nested unordered map
 using TypeMap = std::unordered_map<int, int>;
 using OperationMap = std::unordered_map<int, TypeMap>;
 std::unordered_map<int, OperationMap> SemanticCube;
