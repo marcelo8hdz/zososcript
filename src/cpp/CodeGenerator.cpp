@@ -2,10 +2,13 @@
 #include "CodeGenerator.h"
 #include "SemanticCube.h"
 
+#include <fstream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <wchar.h>
-#include<vector>
+#include <vector>
+#include <map>
+#include <boost/variant.hpp>
 
 namespace Zoso {
 CodeGenerator::CodeGenerator() {
@@ -219,6 +222,64 @@ void CodeGenerator::printConstantMap() {
             std::cout << (*boolValue ? "true" : "false") << "\n";
         }
     }
+}
+
+void CodeGenerator::printConstantMapToFile(const std::string& filename) {
+    std::ofstream file(filename);
+    if (!file) {
+        std::cerr << "Could not open file for writing: " << filename << std::endl;
+        return;
+    }
+
+    file << "#ifndef GENERATED_CONSTANTS_H\n";
+    file << "#define GENERATED_CONSTANTS_H\n\n";
+    file << "#include <map>\n";
+    file << "#include <boost/variant.hpp>\n\n";
+    file << "std::map<int, boost::variant<int, float, bool>> constantMap = {\n";
+    for (const auto& [key, value] : constantMap) {
+        file << "    {" << key << ", ";
+        if (const int* intValue = boost::get<int>(&value)) {
+            file << *intValue;
+        } else if (const float* floatValue = boost::get<float>(&value)) {
+            file << *floatValue;
+        } else if (const bool* boolValue = boost::get<bool>(&value)) {
+            file << (*boolValue ? "true" : "false");
+        }
+        file << "},\n";
+    }
+    file << "};\n\n";
+    file << "#endif // GENERATED_CONSTANTS_H\n";
+
+    file.close();
+}
+
+void CodeGenerator::printCodeVectorToFile(const std::string& filename) {
+    std::ofstream file(filename);
+    if (!file) {
+        std::cerr << "Could not open file for writing: " << filename << std::endl;
+        return;
+    }
+
+    file << "#ifndef GENERATED_CODE_H\n";
+    file << "#define GENERATED_CODE_H\n\n";
+    file << "#include <vector>\n\n";
+    file << "std::vector<std::vector<int>> code = {\n";
+    for (const auto& instruction : code) {
+        file << "    {" << instruction[0] << ", " 
+             << instruction[1] << ", " 
+             << instruction[2] << ", " 
+             << instruction[3] << "},\n";
+    }
+    file << "};\n\n";
+
+    // file << "std::vector<std::wstring> opcode = {\n";
+    // for (const auto& op : opcode) {
+    //     file << "    L\"" << op << "\",\n";
+    // }
+    // file << "};\n\n";
+    file << "#endif // GENERATED_CODE_H\n";
+
+    file.close();
 }
 
 }

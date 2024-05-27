@@ -42,6 +42,10 @@ class CodeGenerator {
         void getRelOpResultType(int& resultType);
         void getMulOpResultType(int& resultType);
         void getAssignResultType(int& resultType);
+
+        void printConstantMapToFile(const std::string& filename);
+        void printCodeVectorToFile(const std::string& filename);
+
         
         void printQuads();
         void printConstantMap();

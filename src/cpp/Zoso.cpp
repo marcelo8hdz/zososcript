@@ -38,8 +38,9 @@ int main(int argc, char* argv[]) {
 
     parser -> codeGenerator -> printQuads();
     parser -> codeGenerator -> printConstantMap();
-
     
+    parser -> codeGenerator -> printConstantMapToFile("virtualMachine/ConstantMap.h");
+    parser -> codeGenerator -> printCodeVectorToFile("virtualMachine/CodeVector.h");
 
     return 0;
 }
