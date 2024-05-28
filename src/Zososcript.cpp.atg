@@ -38,10 +38,11 @@ CHARACTERS
     lf  = '\n'.
     tab = '\t'.
     space = ' '.
+    anyButQuote = ANY - '"'.
 
 TOKENS
     ident = letter { letter | digit }.
-    string = quote { letter | digit } quote.
+    string = quote { anyButQuote } quote.
     number = ['-'] digit {digit}.
     float = ['-'] digit {digit} '.' digit {digit}. 
 
@@ -169,9 +170,11 @@ PRODUCTIONS
     Print (. int type; .) = 
         "print" '(' (
             string (.
-                int tempMemory = codeGenerator -> avail -> next();
-                codeGenerator -> constantMap[tempMemory] = coco_string_create(t -> val);
-                codeGenerator -> code.push_back({PRINT, 0, 0, tempMemory});
+                int tempMemory = codeGenerator->avail->next();
+                std::wstring wstrValue(t->val);
+                wstrValue = wstrValue.substr(1, wstrValue.length() - 2); // Remove surrounding quotes
+                codeGenerator->constantMap[tempMemory] = wstrValue;
+                codeGenerator->code.push_back({PRINT, 0, 0, tempMemory});
             .) 
             | LogicalExpresion<type> (. 
                 codeGenerator -> code.push_back({PRINT, 0, 0, codeGenerator -> operandStack.top()});
