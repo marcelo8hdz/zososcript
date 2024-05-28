@@ -9,6 +9,7 @@ Program Test;
     int jaloIntFloat;
     int JaloFloatInt;
     int JaloFloat;
+    int x;
     boolean argosto;
     boolean args;
     boolean facebook;
@@ -16,8 +17,9 @@ Program Test;
     //asfasdfasd
 
     
-    instagram = variable + 23.0;
     variable = -1;
+    instagram = variable + 23.0;
+    print(instagram);
     argosto = false;
     variable = 23 + -1 * 34 - (3 - 2 * -30);
     instagram = 23.8 + 23.0;
@@ -25,10 +27,40 @@ Program Test;
     instagram = variable + 23.0;
     args = true;
     jaloIntInt = 1;
+    x = 1;
 
 
-    if (1+2) {instagram = 234 + instagram * 23;} else {instagram = 34+2;}
-    if (1+2 < 3423) {instagram = 234 + instagram *23;} else {instagram = 34+2;}
+    if (false) {
+        print(instagram);
+        instagram = 234 + instagram * 23;
+        print(instagram);
+    } else {
+        instagram = 34+2;
+        print(instagram);
+    }
+
+    if (1+2 < 3423) {
+        print(instagram);
+        instagram = 234 + instagram * 23;
+        print(instagram);
+    } else {
+        instagram = 34+2;
+        print(instagram);
+    }
+
+    if (true) {
+        print(instagram);
+        instagram = 234 + instagram * 23;
+        print(instagram);
+    } else {
+        instagram = 34+2;
+        print(instagram);
+    }
+
+    while (x < 10) {
+        print(x);
+        x = x + 1;
+    }
 
     aca = 23.0;
     aca = 2.2;

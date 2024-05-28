@@ -74,7 +74,7 @@ void Parser::AddOp(int& op) {
 		} else if (la->kind == 6 /* "-" */) {
 			Get();
 			op = SUB; codeGenerator -> operatorStack.push(op); 
-		} else SynErr(32);
+		} else SynErr(33);
 }
 
 void Parser::MulOp(int& op) {
@@ -84,7 +84,7 @@ void Parser::MulOp(int& op) {
 		} else if (la->kind == 8 /* "/" */) {
 			Get();
 			op = DIV; codeGenerator -> operatorStack.push(op); 
-		} else SynErr(33);
+		} else SynErr(34);
 }
 
 void Parser::RelOp(int& op) {
@@ -93,14 +93,30 @@ void Parser::RelOp(int& op) {
 			op = EQU; codeGenerator -> operatorStack.push(op); 
 		} else if (la->kind == 10 /* "<" */) {
 			Get();
-			op = GTR; codeGenerator -> operatorStack.push(op); 
+			op = LSS; codeGenerator -> operatorStack.push(op); 
 		} else if (la->kind == 11 /* ">" */) {
 			Get();
-			op = LSS; codeGenerator -> operatorStack.push(op); 
+			op = GTR; codeGenerator -> operatorStack.push(op); 
 		} else if (la->kind == 12 /* "!=" */) {
 			Get();
 			op = NEQU; codeGenerator -> operatorStack.push(op); 
-		} else SynErr(34);
+		} else SynErr(35);
+}
+
+void Parser::Type(int &type) {
+		if (la->kind == 13 /* "int" */) {
+			Get();
+			type = integer; 
+		} else if (la->kind == 14 /* "boolean" */) {
+			Get();
+			type = boolean; 
+		} else if (la->kind == 15 /* "float" */) {
+			Get();
+			type = decimal; 
+		} else if (la->kind == 16 /* "void" */) {
+			Get();
+			type = undef; 
+		} else SynErr(36);
 }
 
 void Parser::VariableDeclaration() {
@@ -108,28 +124,12 @@ void Parser::VariableDeclaration() {
 		Type(type);
 		Ident(name);
 		symbolTable -> NewObj(name, var, type); 
-		while (la->kind == 13 /* "," */) {
+		while (la->kind == 17 /* "," */) {
 			Get();
 			Ident(name);
 			symbolTable -> NewObj(name, var, type); 
 		}
-		Expect(14 /* ";" */);
-}
-
-void Parser::Type(int &type) {
-		if (la->kind == 15 /* "int" */) {
-			Get();
-			type = integer; 
-		} else if (la->kind == 16 /* "boolean" */) {
-			Get();
-			type = boolean; 
-		} else if (la->kind == 17 /* "float" */) {
-			Get();
-			type = decimal; 
-		} else if (la->kind == 18 /* "void" */) {
-			Get();
-			type = undef; 
-		} else SynErr(35);
+		Expect(18 /* ";" */);
 }
 
 void Parser::FunctionDeclaration() {
@@ -141,7 +141,7 @@ void Parser::FunctionDeclaration() {
 		Expect(20 /* "(" */);
 		Expect(21 /* ")" */);
 		Expect(22 /* "{" */);
-		while (la->kind == _ident || la->kind == 24 /* "if" */ || la->kind == 26 /* "while" */) {
+		while (StartOf(1)) {
 			Statement();
 		}
 		Expect(23 /* "}" */);
@@ -150,75 +150,13 @@ void Parser::FunctionDeclaration() {
 void Parser::Statement() {
 		if (la->kind == _ident) {
 			VariableAssignation();
-		} else if (la->kind == 24 /* "if" */) {
+		} else if (la->kind == 25 /* "if" */) {
 			IfCase();
-		} else if (la->kind == 26 /* "while" */) {
+		} else if (la->kind == 27 /* "while" */) {
 			WhileLoop();
-		} else SynErr(36);
-}
-
-void Parser::IfCase() {
-		int type; 
-		Expect(24 /* "if" */);
-		Expect(20 /* "(" */);
-		LogicalExpresion(type);
-		Expect(21 /* ")" */);
-		Expect(22 /* "{" */);
-		type = codeGenerator -> typeStack.top();
-		codeGenerator -> typeStack.pop();
-		
-		int result = codeGenerator -> operandStack.top();
-		codeGenerator -> operandStack.pop();
-		
-		codeGenerator -> code.push_back({GOTO, 0, 0, result});
-		
-		codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
-		
-		while (la->kind == _ident || la->kind == 24 /* "if" */ || la->kind == 26 /* "while" */) {
-			Statement();
-		}
-		Expect(23 /* "}" */);
-		if (la->kind == 25 /* "else" */) {
-			Get();
-			int gotofStack = codeGenerator -> jumpStack.top();
-			codeGenerator -> jumpStack.pop();
-			codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
-			codeGenerator -> code.push_back({GOTOF, gotofStack, static_cast<int>(codeGenerator -> code.size()), 0});
-			
-			Expect(22 /* "{" */);
-			while (la->kind == _ident || la->kind == 24 /* "if" */ || la->kind == 26 /* "while" */) {
-				Statement();
-			}
-			Expect(23 /* "}" */);
-		}
-		int end = codeGenerator -> jumpStack.top();
-		codeGenerator -> jumpStack.pop();
-		codeGenerator -> code[end] = {GOTOF, result, 0, end};
-		
-}
-
-void Parser::LogicalExpresion(int& type) {
-		int nextType; int op;
-		SimExpr(type);
-		while (StartOf(1)) {
-			RelOp(op);
-			SimExpr(nextType);
-			codeGenerator -> getRelOpResultType(nextType); 
-			
-		}
-}
-
-void Parser::WhileLoop() {
-		int type; 
-		Expect(26 /* "while" */);
-		Expect(20 /* "(" */);
-		LogicalExpresion(type);
-		Expect(21 /* ")" */);
-		Expect(22 /* "{" */);
-		while (la->kind == _ident || la->kind == 24 /* "if" */ || la->kind == 26 /* "while" */) {
-			Statement();
-		}
-		Expect(23 /* "}" */);
+		} else if (la->kind == 28 /* "print" */) {
+			Print();
+		} else SynErr(37);
 }
 
 void Parser::VariableAssignation() {
@@ -230,11 +168,117 @@ void Parser::VariableAssignation() {
 		codeGenerator -> typeStack.push(type); 
 		int newtype = undef;
 		
-		Expect(27 /* "=" */);
+		Expect(24 /* "=" */);
 		codeGenerator -> operatorStack.push(ASSIGN); 
 		LogicalExpresion(newtype);
 		codeGenerator -> getAssignResultType(newtype); ; 
-		Expect(14 /* ";" */);
+		Expect(18 /* ";" */);
+}
+
+void Parser::LogicalExpresion(int& type) {
+		int nextType; int op;
+		SimExpr(type);
+		while (StartOf(2)) {
+			RelOp(op);
+			SimExpr(nextType);
+			codeGenerator -> getRelOpResultType(nextType); 
+			
+		}
+}
+
+void Parser::IfCase() {
+		int type; 
+		Expect(25 /* "if" */);
+		Expect(20 /* "(" */);
+		LogicalExpresion(type);
+		Expect(21 /* ")" */);
+		Expect(22 /* "{" */);
+		type = codeGenerator -> typeStack.top();
+		codeGenerator -> typeStack.pop();
+		
+		int result = codeGenerator -> operandStack.top();
+		codeGenerator -> operandStack.pop();
+		
+		codeGenerator -> code.push_back({GOTOF, result, 0, 0});
+		codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
+		
+		while (StartOf(1)) {
+			Statement();
+		}
+		Expect(23 /* "}" */);
+		if (la->kind == 26 /* "else" */) {
+			Get();
+			codeGenerator -> code.push_back({GOTO, 0, 0, 0});
+			
+			int gotoStack = codeGenerator -> jumpStack.top();
+			codeGenerator -> jumpStack.pop();
+			
+			codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
+			
+			codeGenerator -> code[gotoStack][3] = static_cast<int>(codeGenerator -> code.size());
+			
+			Expect(22 /* "{" */);
+			while (StartOf(1)) {
+				Statement();
+			}
+			Expect(23 /* "}" */);
+		}
+		int end = codeGenerator -> jumpStack.top();
+		codeGenerator -> jumpStack.pop();
+		codeGenerator -> code[end][3] = static_cast<int>(codeGenerator -> code.size());
+		
+}
+
+void Parser::WhileLoop() {
+		int type; 
+		Expect(27 /* "while" */);
+		codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size())); 
+		Expect(20 /* "(" */);
+		LogicalExpresion(type);
+		Expect(21 /* ")" */);
+		type = codeGenerator -> typeStack.top();
+		codeGenerator -> typeStack.pop();
+		
+		int result = codeGenerator -> operandStack.top();
+		codeGenerator -> operandStack.pop();
+		
+		codeGenerator -> code.push_back({GOTOF, result, 0, 0});
+		codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size() - 1));
+		
+		Expect(22 /* "{" */);
+		while (StartOf(1)) {
+			Statement();
+		}
+		Expect(23 /* "}" */);
+		int end = codeGenerator -> jumpStack.top();
+		codeGenerator -> jumpStack.pop();
+		
+		int jumpBack = codeGenerator -> jumpStack.top(); 
+		codeGenerator -> jumpStack.pop();
+		
+		codeGenerator -> code.push_back({GOTO, 0, 0, jumpBack});
+		codeGenerator -> code[end][3] = static_cast<int>(codeGenerator -> code.size());
+		
+}
+
+void Parser::Print() {
+		int type; 
+		Expect(28 /* "print" */);
+		Expect(20 /* "(" */);
+		if (la->kind == _string) {
+			Get();
+			int tempMemory = codeGenerator -> avail -> next();
+			codeGenerator -> constantMap[tempMemory] = coco_string_create(t -> val);
+			codeGenerator -> code.push_back({PRINT, 0, 0, tempMemory});
+			
+		} else if (StartOf(3)) {
+			LogicalExpresion(type);
+			codeGenerator -> code.push_back({PRINT, 0, 0, codeGenerator -> operandStack.top()});
+			codeGenerator -> operandStack.pop();
+			
+		} else SynErr(38);
+		Expect(21 /* ")" */);
+		Expect(18 /* ";" */);
 }
 
 void Parser::SimExpr(int& type) {
@@ -286,7 +330,7 @@ void Parser::Factor(int& type) {
 			
 			break;
 		}
-		case 28 /* "false" */: {
+		case 29 /* "false" */: {
 			Get();
 			type = boolean;
 			int tempMemory = codeGenerator -> avail -> next();
@@ -296,7 +340,7 @@ void Parser::Factor(int& type) {
 			
 			break;
 		}
-		case 29 /* "true" */: {
+		case 30 /* "true" */: {
 			Get();
 			type = boolean;
 			int tempMemory = codeGenerator -> avail -> next();
@@ -330,23 +374,23 @@ void Parser::Factor(int& type) {
 			Factor(type);
 			break;
 		}
-		default: SynErr(37); break;
+		default: SynErr(39); break;
 		}
 }
 
 void Parser::Zoso() {
 		wchar_t* name; InitDeclarations(); 
-		Expect(30 /* "Program" */);
+		Expect(31 /* "Program" */);
 		Ident(name);
-		Expect(14 /* ";" */);
-		while (StartOf(2)) {
+		Expect(18 /* ";" */);
+		while (StartOf(4)) {
 			if (la->kind == 19 /* "function" */) {
 				FunctionDeclaration();
 			} else {
 				VariableDeclaration();
 			}
 		}
-		while (la->kind == _ident || la->kind == 24 /* "if" */ || la->kind == 26 /* "while" */) {
+		while (StartOf(1)) {
 			Statement();
 		}
 }
@@ -452,7 +496,7 @@ void Parser::Parse() {
 }
 
 Parser::Parser(Scanner *scanner) {
-	maxT = 31;
+	maxT = 32;
 
 	ParserInitCaller<Parser>::CallInit(this);
 	dummyToken = NULL;
@@ -467,10 +511,12 @@ bool Parser::StartOf(int s) {
 	const bool T = true;
 	const bool x = false;
 
-	static bool set[3][33] = {
-		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x},
-		{x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x},
-		{x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,T, T,T,T,T, x,x,x,x, x,x,x,x, x,x,x,x, x}
+	static bool set[5][34] = {
+		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x},
+		{x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,T,x,T, T,x,x,x, x,x},
+		{x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x},
+		{x,T,x,T, T,x,T,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x, x,x,x,x, x,T,T,x, x,x},
+		{x,x,x,x, x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,T, x,x,x,x, x,x,x,x, x,x,x,x, x,x}
 	};
 
 
@@ -504,31 +550,33 @@ void Errors::SynErr(int line, int col, int n) {
 			case 10: s = coco_string_create(L"\"<\" expected"); break;
 			case 11: s = coco_string_create(L"\">\" expected"); break;
 			case 12: s = coco_string_create(L"\"!=\" expected"); break;
-			case 13: s = coco_string_create(L"\",\" expected"); break;
-			case 14: s = coco_string_create(L"\";\" expected"); break;
-			case 15: s = coco_string_create(L"\"int\" expected"); break;
-			case 16: s = coco_string_create(L"\"boolean\" expected"); break;
-			case 17: s = coco_string_create(L"\"float\" expected"); break;
-			case 18: s = coco_string_create(L"\"void\" expected"); break;
+			case 13: s = coco_string_create(L"\"int\" expected"); break;
+			case 14: s = coco_string_create(L"\"boolean\" expected"); break;
+			case 15: s = coco_string_create(L"\"float\" expected"); break;
+			case 16: s = coco_string_create(L"\"void\" expected"); break;
+			case 17: s = coco_string_create(L"\",\" expected"); break;
+			case 18: s = coco_string_create(L"\";\" expected"); break;
 			case 19: s = coco_string_create(L"\"function\" expected"); break;
 			case 20: s = coco_string_create(L"\"(\" expected"); break;
 			case 21: s = coco_string_create(L"\")\" expected"); break;
 			case 22: s = coco_string_create(L"\"{\" expected"); break;
 			case 23: s = coco_string_create(L"\"}\" expected"); break;
-			case 24: s = coco_string_create(L"\"if\" expected"); break;
-			case 25: s = coco_string_create(L"\"else\" expected"); break;
-			case 26: s = coco_string_create(L"\"while\" expected"); break;
-			case 27: s = coco_string_create(L"\"=\" expected"); break;
-			case 28: s = coco_string_create(L"\"false\" expected"); break;
-			case 29: s = coco_string_create(L"\"true\" expected"); break;
-			case 30: s = coco_string_create(L"\"Program\" expected"); break;
-			case 31: s = coco_string_create(L"??? expected"); break;
-			case 32: s = coco_string_create(L"invalid AddOp"); break;
-			case 33: s = coco_string_create(L"invalid MulOp"); break;
-			case 34: s = coco_string_create(L"invalid RelOp"); break;
-			case 35: s = coco_string_create(L"invalid Type"); break;
-			case 36: s = coco_string_create(L"invalid Statement"); break;
-			case 37: s = coco_string_create(L"invalid Factor"); break;
+			case 24: s = coco_string_create(L"\"=\" expected"); break;
+			case 25: s = coco_string_create(L"\"if\" expected"); break;
+			case 26: s = coco_string_create(L"\"else\" expected"); break;
+			case 27: s = coco_string_create(L"\"while\" expected"); break;
+			case 28: s = coco_string_create(L"\"print\" expected"); break;
+			case 29: s = coco_string_create(L"\"false\" expected"); break;
+			case 30: s = coco_string_create(L"\"true\" expected"); break;
+			case 31: s = coco_string_create(L"\"Program\" expected"); break;
+			case 32: s = coco_string_create(L"??? expected"); break;
+			case 33: s = coco_string_create(L"invalid AddOp"); break;
+			case 34: s = coco_string_create(L"invalid MulOp"); break;
+			case 35: s = coco_string_create(L"invalid RelOp"); break;
+			case 36: s = coco_string_create(L"invalid Type"); break;
+			case 37: s = coco_string_create(L"invalid Statement"); break;
+			case 38: s = coco_string_create(L"invalid Print"); break;
+			case 39: s = coco_string_create(L"invalid Factor"); break;
 
 		default:
 		{

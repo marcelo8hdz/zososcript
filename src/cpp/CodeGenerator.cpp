@@ -205,11 +205,14 @@ void CodeGenerator::getAssignResultType(int& resultType) {
 }
 
 void CodeGenerator::printQuads()  {
+    int cont = 0;
     for (const auto& instruction : code) {
-        std::wcout << opcode[instruction[0]] << L" " 
+        std::wcout << cont << L". " 
+                   << opcode[instruction[0]] << L" " 
                    << instruction[1] << L" " 
                    << instruction[2] << L" " 
                    << instruction[3] << L"\n";
+        cont++;
     }
 }
 void CodeGenerator::printConstantMap() {

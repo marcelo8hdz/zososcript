@@ -67,9 +67,16 @@ PRODUCTIONS
 
     RelOp<int& op> = 
         "==" (. op = EQU; codeGenerator -> operatorStack.push(op); .)
-        | '<'  (. op = GTR; codeGenerator -> operatorStack.push(op); .)
-        | '>'  (. op = LSS; codeGenerator -> operatorStack.push(op); .)
+        | '<'  (. op = LSS; codeGenerator -> operatorStack.push(op); .)
+        | '>'  (. op = GTR; codeGenerator -> operatorStack.push(op); .)
         | "!=" (. op = NEQU; codeGenerator -> operatorStack.push(op); .)
+    .
+
+    Type<int &type> = 
+        "int" (. type = integer; .)
+        | "boolean" (. type = boolean; .)
+        | "float" (. type = decimal; .)
+        | "void" (. type = undef; .)
     .
 
     VariableDeclaration (. wchar_t* name; int type; .) = 
@@ -79,56 +86,12 @@ PRODUCTIONS
         ';'
     .
 
-    Type<int &type> = ( 
-        "int" (. type = integer; .)
-        | "boolean" (. type = boolean; .)
-        | "float" (. type = decimal; .)
-        | "void" (. type = undef; .)
-    ).
-
     FunctionDeclaration (. wchar_t* name; int type; .) = 
         "function" Type<type>  
         Ident<name> (. symbolTable -> NewObj(name, function, type); .)
         '(' ')' 
         '{'{ Statement }'}' 
     .
-
-    IfCase (. int type; .) = 
-        "if" '(' LogicalExpresion<type> ')' '{'
-            (. 
-                type = codeGenerator -> typeStack.top();
-                codeGenerator -> typeStack.pop();
-
-                int result = codeGenerator -> operandStack.top();
-                codeGenerator -> operandStack.pop();
-
-                codeGenerator -> code.push_back({GOTO, 0, 0, result});
-
-                codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
-            .)
-            { Statement }
-        '}'
-        [ "else" (. 
-            int gotofStack = codeGenerator -> jumpStack.top();
-            codeGenerator -> jumpStack.pop();
-            codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
-            codeGenerator -> code.push_back({GOTOF, gotofStack, static_cast<int>(codeGenerator -> code.size()), 0});
-        .) '{' 
-            { Statement } 
-        '}']
-        (. 
-            int end = codeGenerator -> jumpStack.top();
-            codeGenerator -> jumpStack.pop();
-            codeGenerator -> code[end] = {GOTOF, result, 0, end};
-        .)
-    .
-
-    WhileLoop (. int type; .) = 
-        "while" '(' LogicalExpresion<type> ')' '{' 
-            { Statement } 
-        '}'
-    .
-    //for loops
 
     VariableAssignation (. int type; wchar_t* name; Obj obj; .) = 
         Ident<name> (.
@@ -143,10 +106,86 @@ PRODUCTIONS
         ';'
     .
 
+    IfCase (. int type; .) = 
+        "if" '(' LogicalExpresion<type> ')' '{'
+            (. 
+                type = codeGenerator -> typeStack.top();
+                codeGenerator -> typeStack.pop();
+
+                int result = codeGenerator -> operandStack.top();
+                codeGenerator -> operandStack.pop();
+
+                codeGenerator -> code.push_back({GOTOF, result, 0, 0});
+                codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
+            .)
+            { Statement }
+        '}'
+        [ "else" (. 
+            codeGenerator -> code.push_back({GOTO, 0, 0, 0});
+
+            int gotoStack = codeGenerator -> jumpStack.top();
+            codeGenerator -> jumpStack.pop();
+            
+            codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size()) - 1);
+
+            codeGenerator -> code[gotoStack][3] = static_cast<int>(codeGenerator -> code.size());
+        .) '{' 
+            { Statement } 
+        '}']
+        (. 
+            int end = codeGenerator -> jumpStack.top();
+            codeGenerator -> jumpStack.pop();
+            codeGenerator -> code[end][3] = static_cast<int>(codeGenerator -> code.size());
+        .)
+    .
+
+    WhileLoop (. int type; .) = 
+        "while" (. codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size())); .)
+        '(' LogicalExpresion<type> ')' (.    
+            type = codeGenerator -> typeStack.top();
+            codeGenerator -> typeStack.pop();
+            
+            int result = codeGenerator -> operandStack.top();
+            codeGenerator -> operandStack.pop();
+
+            codeGenerator -> code.push_back({GOTOF, result, 0, 0});
+            codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size() - 1));
+        .) 
+        '{' 
+            { Statement } 
+        '}' (.
+            int end = codeGenerator -> jumpStack.top();
+            codeGenerator -> jumpStack.pop();
+            
+            int jumpBack = codeGenerator -> jumpStack.top(); 
+            codeGenerator -> jumpStack.pop();
+
+            codeGenerator -> code.push_back({GOTO, 0, 0, jumpBack});
+            codeGenerator -> code[end][3] = static_cast<int>(codeGenerator -> code.size());
+        .)
+    .
+    //for loops
+
+    Print (. int type; .) = 
+        "print" '(' (
+            string (.
+                int tempMemory = codeGenerator -> avail -> next();
+                codeGenerator -> constantMap[tempMemory] = coco_string_create(t -> val);
+                codeGenerator -> code.push_back({PRINT, 0, 0, tempMemory});
+            .) 
+            | LogicalExpresion<type> (. 
+                codeGenerator -> code.push_back({PRINT, 0, 0, codeGenerator -> operandStack.top()});
+                codeGenerator -> operandStack.pop();
+            .)
+        )
+        ')'';' 
+    .
+
     Statement = 
         VariableAssignation
         | IfCase
         | WhileLoop
+        | Print
     .
 
     LogicalExpresion<int& type> (. int nextType; int op;.) = 
@@ -240,15 +279,13 @@ END Zoso.
 /*-------------------
 TODO:
 
-MAKE VIRTUAL MACHINE WORK CORRECTLY
-
 FIX TYPE BUG ASSIGN CHECK TODO IN ASSIGN OP TYPE CODE GENERATOR METHOD
 
-CREATE PRINTS
+PRINT STRINGS
+
+PRINT WITH COMMA GRAMMAR
 
 FOR LOOPS -> GRAMMAR AND EVERYTHING ELSE
-
-WHILE LOOPS QUADS
 
 REFACTOR FOLDERS {
     TRY TO SET COMPILER AND VIRTUAL MACHINE INSIDE SOURCE AND REMOVE CPP

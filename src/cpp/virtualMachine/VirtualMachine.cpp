@@ -18,9 +18,11 @@ int main() {
         switch (op) {
             case 0:  // ADD
                 constantMap[result] = add(constantMap[arg1], constantMap[arg2]);;
+                // std::cout << "ADD" << constantMap[arg1] << '+' << constantMap[arg2] << '=' << constantMap[result] << '\n';
                 break;
             case 1:  // SUB
                 constantMap[result] = sub(constantMap[arg1], constantMap[arg2]);
+                // std::cout << "SUB" << constantMap[arg1] << '-' << constantMap[arg2] << '=' << constantMap[result] << '\n';
                 break;
             case 2:  // MUL
                 constantMap[result] = mul(constantMap[arg1], constantMap[arg2]);
@@ -30,6 +32,7 @@ int main() {
                 //     throw std::runtime_error("Division by zero");
                 // }
                 constantMap[result] = div(constantMap[arg1], constantMap[arg2]);
+                // std::cout << "DIV" << constantMap[arg1] << '/' << constantMap[arg2] << '=' << constantMap[result] << '\n';
                 break;
             case 4:  // EQU
                 constantMap[result] = constantMap[arg1] == constantMap[arg2];
@@ -41,7 +44,9 @@ int main() {
                 constantMap[result] = greaterThan(constantMap[arg1], constantMap[arg2]);
                 break;
             case 7:  // ASSIGN
-                constantMap[result] = constantMap[arg1];
+                // std::cout << "ASSIGN " <<  arg2 << '=' << constantMap[arg1]  << ' ';
+                constantMap[arg2] = constantMap[arg1];
+                // std::cout << constantMap[arg2] << '\n';
                 break;
             case 8:  // LOAD
                 constantMap[result] = arg1;  // Assuming arg1 is a value to be loaded
@@ -60,9 +65,12 @@ int main() {
                 continue; 
             case 13:  // GOTOF
                 if (const bool* condition = boost::get<bool>(&constantMap[arg1])) {
-                    if (!*condition) instructionPointer = result;
+                    if (!*condition) {
+                        instructionPointer = result;
+                        continue;
+                    }
                 }
-                continue;
+                break;
             case 14:  // STORE
                 std::cout << "STORE not implemented\n";
                 break;
@@ -73,7 +81,7 @@ int main() {
                 std::cout << "Write not implemented\n";
                 break;
             case 17:  // PRINT
-                std::wcout << L"PRINT: " << constantMap[arg1] << L"\n";
+                std::wcout << L"PRINT: " << constantMap[result] << L"\n";
                 break;
             case 18:  // NEQU
                 constantMap[result] = (constantMap[arg1] != constantMap[arg2]);
