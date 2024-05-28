@@ -241,24 +241,24 @@ void CodeGenerator::printConstantMapToFile(const std::string& filename) {
     file << "#define GENERATED_CONSTANTS_H\n\n";
     file << "#include <map>\n";
     file << "#include <boost/variant.hpp>\n\n";
-    file << "std::map<int, boost::variant<int, float, bool>> constantMap = {\n";
+    file << "std::map<int, boost::variant<int, float, bool, std::string>> constantMap = {\n";
     for (const auto& [key, value] : constantMap) {
-        file << "    {" << key << ", " << "boost::variant<int, float, bool>(";
+        file << "    {" << key << ", ";
         if (const int* intValue = boost::get<int>(&value)) {
-            file << *intValue;
+            file<< "boost::variant<int, float, bool>("  << *intValue;
         } else if (const float* floatValue = boost::get<float>(&value)) {
             std::ostringstream oss;
-            oss << *floatValue;
+            oss << "boost::variant<int, float, bool>(" << *floatValue;
             std::string floatString = oss.str();
             if (floatString.find('.') != std::string::npos) {
                 floatString += 'f';
             }
             file << floatString;
         } else if (const bool* boolValue = boost::get<bool>(&value)) {
-            file << (*boolValue ? "true" : "false");
+            file << "boost::variant<int, float, bool>(" << (*boolValue ? "true" : "false");
         } 
        else if (const std::wstring* wstrValue = boost::get<std::wstring>(&value)) {
-            file << "L\"" << std::string(wstrValue->begin(), wstrValue->end()) << "\"";
+            file << "(std::string)" << "\"" << std::string(wstrValue->begin(), wstrValue->end()) << "\"";
         }
         file << ")},\n";
     }
