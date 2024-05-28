@@ -644,7 +644,7 @@ Token* Scanner::NextToken() {
 		case 2:
 			case_2:
 			if (ch == L'"') {AddCh(); goto case_3;}
-			else if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_2;}
+			else if (ch <= L'!' || (ch >= L'#' && ch <= 65535)) {AddCh(); goto case_2;}
 			else {goto case_0;}
 		case 3:
 			case_3:

@@ -224,6 +224,8 @@ void CodeGenerator::printConstantMap() {
             std::cout << *floatValue << "\n";
         } else if (const bool* boolValue = boost::get<bool>(&value)) {
             std::cout << (*boolValue ? "true" : "false") << "\n";
+        } else if (const std::wstring* wstrValue = boost::get<std::wstring>(&value)) {
+            std::wcout << L"\"" << *wstrValue << L"\"\n";
         }
     }
 }
@@ -254,6 +256,9 @@ void CodeGenerator::printConstantMapToFile(const std::string& filename) {
             file << floatString;
         } else if (const bool* boolValue = boost::get<bool>(&value)) {
             file << (*boolValue ? "true" : "false");
+        } 
+       else if (const std::wstring* wstrValue = boost::get<std::wstring>(&value)) {
+            file << "L\"" << std::string(wstrValue->begin(), wstrValue->end()) << "\"";
         }
         file << ")},\n";
     }

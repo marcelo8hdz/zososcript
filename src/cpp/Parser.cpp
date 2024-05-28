@@ -267,9 +267,11 @@ void Parser::Print() {
 		Expect(20 /* "(" */);
 		if (la->kind == _string) {
 			Get();
-			int tempMemory = codeGenerator -> avail -> next();
-			codeGenerator -> constantMap[tempMemory] = coco_string_create(t -> val);
-			codeGenerator -> code.push_back({PRINT, 0, 0, tempMemory});
+			int tempMemory = codeGenerator->avail->next();
+			std::wstring wstrValue(t->val);
+			wstrValue = wstrValue.substr(1, wstrValue.length() - 2); // Remove surrounding quotes
+			codeGenerator->constantMap[tempMemory] = wstrValue;
+			codeGenerator->code.push_back({PRINT, 0, 0, tempMemory});
 			
 		} else if (StartOf(3)) {
 			LogicalExpresion(type);

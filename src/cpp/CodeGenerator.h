@@ -32,7 +32,7 @@ class CodeGenerator {
         std::stack<int> jumpStack;
         
         std::vector<std::vector<int> > code;
-        std::map<int, boost::variant<int, float, bool> > constantMap;
+        std::map<int, boost::variant<int, float, bool, std::wstring> > constantMap;
         
         
         CodeGenerator();

@@ -44,6 +44,13 @@ std::map<int, boost::variant<int, float, bool>> constantMap = {
     {58, boost::variant<int, float, bool>(2.2f)},
     {59, boost::variant<int, float, bool>(3)},
     {60, boost::variant<int, float, bool>(23)},
+    {62, boost::variant<int, float, bool>(33.3f)},
+    {64, boost::variant<int, float, bool>(1)},
+    {66, boost::variant<int, float, bool>(1)},
+    {68, boost::variant<int, float, bool>(L"asdlkfja;sdlkfj  a;skd oowrasdfasdn")},
+    {69, boost::variant<int, float, bool>(L"asdlkfja;sdlkfj  a;skd oowdsaasdffrn")},
+    {70, boost::variant<int, float, bool>(L"asdlkfja;sdlkfj  a;skd oowrnsdssd")},
+    {71, boost::variant<int, float, bool>(L"asdlkfja;sdlkfj  a;skd oowrndsd")},
 };
 
 #endif // GENERATED_CONSTANTS_H
