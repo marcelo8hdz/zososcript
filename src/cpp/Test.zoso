@@ -66,5 +66,10 @@ Program Test;
     aca = 2.2;
     variable = 3;
     instagram = variable + 23.0;
+    aca = aca * 33.3 + 1;
+    print(aca + 1);
 
-    print("asdlkfja;sdlkfj  a;skd oowrn");
+    print("asdlkfja;sdlkfj  a;skd oowrasdfasdn");
+    print("asdlkfja;sdlkfj  a;skd oowdsaasdffrn");
+    print("asdlkfja;sdlkfj  a;skd oowrnsdssd");
+    print("asdlkfja;sdlkfj  a;skd oowrndsd");
