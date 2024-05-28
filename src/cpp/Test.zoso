@@ -10,6 +10,10 @@ Program Test;
     int JaloFloatInt;
     int JaloFloat;
     int x;
+    int fiboA;
+    int fiboB;
+    int fiboTemp;
+
     boolean argosto;
     boolean args;
     boolean facebook;
@@ -73,4 +77,14 @@ Program Test;
     print("asdlkfja;sdlkfj  a;skd oowdsaasdffrn");
     print("asdlkfja;sdlkfj  a;skd oowrnsdssd");
     print("asdlkfja;sdlkfj  a;skd oowrndsd");
-      print("asdlkfja;sdlkfj  a;skd oowrndsd", instagram, " ", aca);
+    print("asdlkfja;sdlkfj  a;skd oowrndsd", instagram, " ", aca);
+
+    fiboA = 0;
+    fiboB = 1;
+
+    while (fiboB < 10) {
+        print("fibonacci", fiboB);
+        fiboTemp = fiboB;
+        fiboB = fiboA + fiboB;
+        fiboA = fiboTemp;
+    }
