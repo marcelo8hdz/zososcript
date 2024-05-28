@@ -279,6 +279,23 @@ void Parser::Print() {
 			codeGenerator -> operandStack.pop();
 			
 		} else SynErr(38);
+		while (la->kind == 17 /* "," */) {
+			Get();
+			if (la->kind == _string) {
+				Get();
+				int tempMemory = codeGenerator->avail->next();
+				std::wstring wstrValue(t->val);
+				wstrValue = wstrValue.substr(1, wstrValue.length() - 2); // Remove surrounding quotes
+				codeGenerator->constantMap[tempMemory] = wstrValue;
+				codeGenerator->code.push_back({PRINT, 0, 0, tempMemory});
+				
+			} else if (StartOf(3)) {
+				LogicalExpresion(type);
+				codeGenerator -> code.push_back({PRINT, 0, 0, codeGenerator -> operandStack.top()});
+				codeGenerator -> operandStack.pop();
+				
+			} else SynErr(39);
+		}
 		Expect(21 /* ")" */);
 		Expect(18 /* ";" */);
 }
@@ -376,7 +393,7 @@ void Parser::Factor(int& type) {
 			Factor(type);
 			break;
 		}
-		default: SynErr(39); break;
+		default: SynErr(40); break;
 		}
 }
 
@@ -578,7 +595,8 @@ void Errors::SynErr(int line, int col, int n) {
 			case 36: s = coco_string_create(L"invalid Type"); break;
 			case 37: s = coco_string_create(L"invalid Statement"); break;
 			case 38: s = coco_string_create(L"invalid Print"); break;
-			case 39: s = coco_string_create(L"invalid Factor"); break;
+			case 39: s = coco_string_create(L"invalid Print"); break;
+			case 40: s = coco_string_create(L"invalid Factor"); break;
 
 		default:
 		{

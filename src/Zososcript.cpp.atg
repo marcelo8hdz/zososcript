@@ -181,6 +181,20 @@ PRODUCTIONS
                 codeGenerator -> operandStack.pop();
             .)
         )
+        {','(
+            string (.
+                int tempMemory = codeGenerator->avail->next();
+                std::wstring wstrValue(t->val);
+                wstrValue = wstrValue.substr(1, wstrValue.length() - 2); // Remove surrounding quotes
+                codeGenerator->constantMap[tempMemory] = wstrValue;
+                codeGenerator->code.push_back({PRINT, 0, 0, tempMemory});
+            .) 
+            | LogicalExpresion<type> (. 
+                codeGenerator -> code.push_back({PRINT, 0, 0, codeGenerator -> operandStack.top()});
+                codeGenerator -> operandStack.pop();
+            .)
+        )}
+
         ')'';' 
     .
 

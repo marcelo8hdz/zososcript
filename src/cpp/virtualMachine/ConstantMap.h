@@ -51,6 +51,8 @@ std::map<int, boost::variant<int, float, bool, std::string>> constantMap = {
     {69, (std::string) ("asdlkfja;sdlkfj  a;skd oowdsaasdffrn")},
     {70, (std::string) ("asdlkfja;sdlkfj  a;skd oowrnsdssd")},
     {71, (std::string) ("asdlkfja;sdlkfj  a;skd oowrndsd")},
+    {72, (std::string) ("asdlkfja;sdlkfj  a;skd oowrndsd")},
+    {73, (std::string) (" ")},
 };
 
 #endif // GENERATED_CONSTANTS_H
