@@ -4,7 +4,7 @@
 #include <map>
 #include <boost/variant.hpp>
 
-std::map<int, boost::variant<int, float, bool>> constantMap = {
+std::map<int, boost::variant<int, float, bool, std::string>> constantMap = {
     {1, boost::variant<int, float, bool>(-1)},
     {2, boost::variant<int, float, bool>(23)},
     {4, boost::variant<int, float, bool>(false)},
@@ -47,10 +47,10 @@ std::map<int, boost::variant<int, float, bool>> constantMap = {
     {62, boost::variant<int, float, bool>(33.3f)},
     {64, boost::variant<int, float, bool>(1)},
     {66, boost::variant<int, float, bool>(1)},
-    {68, boost::variant<int, float, bool>(L"asdlkfja;sdlkfj  a;skd oowrasdfasdn")},
-    {69, boost::variant<int, float, bool>(L"asdlkfja;sdlkfj  a;skd oowdsaasdffrn")},
-    {70, boost::variant<int, float, bool>(L"asdlkfja;sdlkfj  a;skd oowrnsdssd")},
-    {71, boost::variant<int, float, bool>(L"asdlkfja;sdlkfj  a;skd oowrndsd")},
+    {68, (std::string)("asdlkfja;sdlkfj  a;skd oowrasdfasdn")},
+    {69, (std::string)("asdlkfja;sdlkfj  a;skd oowdsaasdffrn")},
+    {70, (std::string)("asdlkfja;sdlkfj  a;skd oowrnsdssd")},
+    {71, (std::string)("asdlkfja;sdlkfj  a;skd oowrndsd")},
 };
 
 #endif // GENERATED_CONSTANTS_H

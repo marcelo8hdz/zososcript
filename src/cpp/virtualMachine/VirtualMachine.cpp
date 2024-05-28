@@ -81,7 +81,7 @@ int main() {
                 std::cout << "Write not implemented\n";
                 break;
             case 17:  // PRINT
-                std::wcout << L"PRINT: " << constantMap[result] << L"\n";
+                print(constantMap[result]);
                 break;
             case 18:  // NEQU
                 constantMap[result] = (constantMap[arg1] != constantMap[arg2]);
