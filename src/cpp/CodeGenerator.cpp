@@ -258,7 +258,7 @@ void CodeGenerator::printConstantMapToFile(const std::string& filename) {
             file << "boost::variant<int, float, bool>(" << (*boolValue ? "true" : "false");
         } 
        else if (const std::wstring* wstrValue = boost::get<std::wstring>(&value)) {
-            file << "(std::string)" << "\"" << std::string(wstrValue->begin(), wstrValue->end()) << "\"";
+            file << "(std::string) (" << "\"" << std::string(wstrValue->begin(), wstrValue->end()) << "\"";
         }
         file << ")},\n";
     }
