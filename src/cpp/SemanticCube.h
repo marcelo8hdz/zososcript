@@ -16,7 +16,6 @@ void initializeSemanticCube() {
 
 
     // Populate SemanticCube for "int"
-    // fix bug here assignation types are sideways
     SemanticCube[integer][ASSIGN] = {{integer, integer}, {decimal, error}, {boolean, error}, {undef, error}};
     SemanticCube[integer][EQU] = {{integer, boolean}, {decimal, error}, {boolean, error}, {undef, error}};
     SemanticCube[integer][GTR] = {{integer, boolean}, {decimal, boolean}, {boolean, error}, {undef, error}};

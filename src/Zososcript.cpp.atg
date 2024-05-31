@@ -14,7 +14,7 @@ COMPILER Zoso
 
 
     int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN, // operation codes
-        LOAD, CONST, FCALL, RETURN, GOTO, GOTOF, STORE, READ, WRITE, PRINT, NEQU, PARENTHESIS;
+        LOAD, CONST, FCALL, RETURN, GOTO, GOTOF, STORE, READ, WRITE, PRINT, NEQU, PARENTHESIS, GOTOT;
 
     void InitDeclarations() {
         plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7;
@@ -24,7 +24,7 @@ COMPILER Zoso
         // Operational Codes
         ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
         LOAD = 8; CONST = 9; FCALL = 10; RETURN = 11; GOTO = 12; GOTOF = 13; STORE = 14; 
-        READ = 15; WRITE = 16; PRINT = 17; NEQU = 18, PARENTHESIS = 19;
+        READ = 15; WRITE = 16; PRINT = 17; NEQU = 18, PARENTHESIS = 19; GOTOT = 20;
     }
 
     SymbolTable* symbolTable;
@@ -165,6 +165,23 @@ PRODUCTIONS
             codeGenerator -> code[end][3] = static_cast<int>(codeGenerator -> code.size());
         .)
     .
+
+    DoWhileLoop (. int type; .) = 
+        "do" '{' (. codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size())); .)
+            { Statement } 
+        '}'
+        "while" '(' LogicalExpresion<type> ')' (.    
+            type = codeGenerator -> typeStack.top();
+            codeGenerator -> typeStack.pop();
+            
+            int result = codeGenerator -> operandStack.top();
+            codeGenerator -> operandStack.pop();
+
+            codeGenerator -> code.push_back({GOTOT, result, 0, codeGenerator -> jumpStack.top()});
+            codeGenerator -> jumpStack.pop();
+
+        .) 
+    .
     //for loops
 
     Print (. int type; .) = 
@@ -202,6 +219,7 @@ PRODUCTIONS
         VariableAssignation
         | IfCase
         | WhileLoop
+        | DoWhileLoop
         | Print
     .
 
@@ -298,7 +316,7 @@ TODO:
 
 FIX TYPE BUG ASSIGN CHECK TODO IN ASSIGN OP TYPE CODE GENERATOR METHOD
 
-PRINT STRINGS
+CHANGE GOTOT TO AFTER GOTO,GOTOF
 
 PRINT WITH COMMA GRAMMAR
 

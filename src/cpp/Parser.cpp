@@ -74,7 +74,7 @@ void Parser::AddOp(int& op) {
 		} else if (la->kind == 6 /* "-" */) {
 			Get();
 			op = SUB; codeGenerator -> operatorStack.push(op); 
-		} else SynErr(33);
+		} else SynErr(34);
 }
 
 void Parser::MulOp(int& op) {
@@ -84,7 +84,7 @@ void Parser::MulOp(int& op) {
 		} else if (la->kind == 8 /* "/" */) {
 			Get();
 			op = DIV; codeGenerator -> operatorStack.push(op); 
-		} else SynErr(34);
+		} else SynErr(35);
 }
 
 void Parser::RelOp(int& op) {
@@ -100,7 +100,7 @@ void Parser::RelOp(int& op) {
 		} else if (la->kind == 12 /* "!=" */) {
 			Get();
 			op = NEQU; codeGenerator -> operatorStack.push(op); 
-		} else SynErr(35);
+		} else SynErr(36);
 }
 
 void Parser::Type(int &type) {
@@ -116,7 +116,7 @@ void Parser::Type(int &type) {
 		} else if (la->kind == 16 /* "void" */) {
 			Get();
 			type = undef; 
-		} else SynErr(36);
+		} else SynErr(37);
 }
 
 void Parser::VariableDeclaration() {
@@ -154,9 +154,11 @@ void Parser::Statement() {
 			IfCase();
 		} else if (la->kind == 27 /* "while" */) {
 			WhileLoop();
-		} else if (la->kind == 28 /* "print" */) {
+		} else if (la->kind == 28 /* "do" */) {
+			DoWhileLoop();
+		} else if (la->kind == 29 /* "print" */) {
 			Print();
-		} else SynErr(37);
+		} else SynErr(38);
 }
 
 void Parser::VariableAssignation() {
@@ -261,9 +263,34 @@ void Parser::WhileLoop() {
 		
 }
 
+void Parser::DoWhileLoop() {
+		int type; 
+		Expect(28 /* "do" */);
+		Expect(22 /* "{" */);
+		codeGenerator -> jumpStack.push(static_cast<int>(codeGenerator -> code.size())); 
+		while (StartOf(1)) {
+			Statement();
+		}
+		Expect(23 /* "}" */);
+		Expect(27 /* "while" */);
+		Expect(20 /* "(" */);
+		LogicalExpresion(type);
+		Expect(21 /* ")" */);
+		type = codeGenerator -> typeStack.top();
+		codeGenerator -> typeStack.pop();
+		
+		int result = codeGenerator -> operandStack.top();
+		codeGenerator -> operandStack.pop();
+		
+		codeGenerator -> code.push_back({GOTOT, result, 0, codeGenerator -> jumpStack.top()});
+		codeGenerator -> jumpStack.pop();
+		
+		
+}
+
 void Parser::Print() {
 		int type; 
-		Expect(28 /* "print" */);
+		Expect(29 /* "print" */);
 		Expect(20 /* "(" */);
 		if (la->kind == _string) {
 			Get();
@@ -278,7 +305,7 @@ void Parser::Print() {
 			codeGenerator -> code.push_back({PRINT, 0, 0, codeGenerator -> operandStack.top()});
 			codeGenerator -> operandStack.pop();
 			
-		} else SynErr(38);
+		} else SynErr(39);
 		while (la->kind == 17 /* "," */) {
 			Get();
 			if (la->kind == _string) {
@@ -294,7 +321,7 @@ void Parser::Print() {
 				codeGenerator -> code.push_back({PRINT, 0, 0, codeGenerator -> operandStack.top()});
 				codeGenerator -> operandStack.pop();
 				
-			} else SynErr(39);
+			} else SynErr(40);
 		}
 		Expect(21 /* ")" */);
 		Expect(18 /* ";" */);
@@ -349,7 +376,7 @@ void Parser::Factor(int& type) {
 			
 			break;
 		}
-		case 29 /* "false" */: {
+		case 30 /* "false" */: {
 			Get();
 			type = boolean;
 			int tempMemory = codeGenerator -> avail -> next();
@@ -359,7 +386,7 @@ void Parser::Factor(int& type) {
 			
 			break;
 		}
-		case 30 /* "true" */: {
+		case 31 /* "true" */: {
 			Get();
 			type = boolean;
 			int tempMemory = codeGenerator -> avail -> next();
@@ -393,13 +420,13 @@ void Parser::Factor(int& type) {
 			Factor(type);
 			break;
 		}
-		default: SynErr(40); break;
+		default: SynErr(41); break;
 		}
 }
 
 void Parser::Zoso() {
 		wchar_t* name; InitDeclarations(); 
-		Expect(31 /* "Program" */);
+		Expect(32 /* "Program" */);
 		Ident(name);
 		Expect(18 /* ";" */);
 		while (StartOf(4)) {
@@ -515,7 +542,7 @@ void Parser::Parse() {
 }
 
 Parser::Parser(Scanner *scanner) {
-	maxT = 32;
+	maxT = 33;
 
 	ParserInitCaller<Parser>::CallInit(this);
 	dummyToken = NULL;
@@ -530,12 +557,12 @@ bool Parser::StartOf(int s) {
 	const bool T = true;
 	const bool x = false;
 
-	static bool set[5][34] = {
-		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x},
-		{x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,T,x,T, T,x,x,x, x,x},
-		{x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x},
-		{x,T,x,T, T,x,T,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x, x,x,x,x, x,T,T,x, x,x},
-		{x,x,x,x, x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,T, x,x,x,x, x,x,x,x, x,x,x,x, x,x}
+	static bool set[5][35] = {
+		{T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x},
+		{x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,T,x,T, T,T,x,x, x,x,x},
+		{x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x},
+		{x,T,x,T, T,x,T,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x, x,x,x,x, x,x,T,T, x,x,x},
+		{x,x,x,x, x,x,x,x, x,x,x,x, x,T,T,T, T,x,x,T, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x}
 	};
 
 
@@ -584,19 +611,20 @@ void Errors::SynErr(int line, int col, int n) {
 			case 25: s = coco_string_create(L"\"if\" expected"); break;
 			case 26: s = coco_string_create(L"\"else\" expected"); break;
 			case 27: s = coco_string_create(L"\"while\" expected"); break;
-			case 28: s = coco_string_create(L"\"print\" expected"); break;
-			case 29: s = coco_string_create(L"\"false\" expected"); break;
-			case 30: s = coco_string_create(L"\"true\" expected"); break;
-			case 31: s = coco_string_create(L"\"Program\" expected"); break;
-			case 32: s = coco_string_create(L"??? expected"); break;
-			case 33: s = coco_string_create(L"invalid AddOp"); break;
-			case 34: s = coco_string_create(L"invalid MulOp"); break;
-			case 35: s = coco_string_create(L"invalid RelOp"); break;
-			case 36: s = coco_string_create(L"invalid Type"); break;
-			case 37: s = coco_string_create(L"invalid Statement"); break;
-			case 38: s = coco_string_create(L"invalid Print"); break;
+			case 28: s = coco_string_create(L"\"do\" expected"); break;
+			case 29: s = coco_string_create(L"\"print\" expected"); break;
+			case 30: s = coco_string_create(L"\"false\" expected"); break;
+			case 31: s = coco_string_create(L"\"true\" expected"); break;
+			case 32: s = coco_string_create(L"\"Program\" expected"); break;
+			case 33: s = coco_string_create(L"??? expected"); break;
+			case 34: s = coco_string_create(L"invalid AddOp"); break;
+			case 35: s = coco_string_create(L"invalid MulOp"); break;
+			case 36: s = coco_string_create(L"invalid RelOp"); break;
+			case 37: s = coco_string_create(L"invalid Type"); break;
+			case 38: s = coco_string_create(L"invalid Statement"); break;
 			case 39: s = coco_string_create(L"invalid Print"); break;
-			case 40: s = coco_string_create(L"invalid Factor"); break;
+			case 40: s = coco_string_create(L"invalid Print"); break;
+			case 41: s = coco_string_create(L"invalid Factor"); break;
 
 		default:
 		{

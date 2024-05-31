@@ -17,7 +17,7 @@ CodeGenerator::CodeGenerator() {
     ADD = 0; SUB = 1; MUL = 2; DIV = 3; EQU = 4; LSS = 5; GTR = 6; ASSIGN = 7;
     
     LOAD = 8; CONST = 9; FCALL = 10; RETURN = 11; GOTO = 12; GOTOF = 13; STORE = 14; 
-    READ = 15; WRITE = 16; PRINT = 17; NEQU = 18;
+    READ = 15; WRITE = 16; PRINT = 17; NEQU = 18; GOTOT = 20;
     ERROR = 404;
     undef = 0, integer = 1, boolean = 2, decimal = 3; // types
 
@@ -41,6 +41,7 @@ CodeGenerator::CodeGenerator() {
     opcode[16] = coco_string_create("WRITE"); // WRITE CONSTANTS ON MEMORY
     opcode[17] = coco_string_create("PRINT");  
     opcode[18] = coco_string_create("NEQU");  
+    opcode[20] = coco_string_create("GOTOT");  
     //add ERA (CHECK THERE'S MEMORY STACK AVAILABLE)load memory context for next instruction
 
     avail = new Avail();

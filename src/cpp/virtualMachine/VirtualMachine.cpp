@@ -86,6 +86,14 @@ int main() {
             case 18:  // NEQU
                 constantMap[result] = (constantMap[arg1] != constantMap[arg2]);
                 break;
+            case 20:  // GOTOT
+                if (const bool* condition = boost::get<bool>(&constantMap[arg1])) {
+                    if (*condition) {
+                        instructionPointer = result;
+                        continue;
+                    }
+                }
+                break;
             default:
                 throw std::runtime_error("Unknown opcode");
         }

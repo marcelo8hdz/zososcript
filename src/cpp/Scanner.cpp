@@ -421,8 +421,8 @@ Scanner::~Scanner() {
 void Scanner::Init() {
 	EOL    = '\n';
 	eofSym = 0;
-	maxT = 32;
-	noSym = 32;
+	maxT = 33;
+	noSym = 33;
 	int i;
 	for (i = 65; i <= 90; ++i) start.set(i, 1);
 	for (i = 97; i <= 122; ++i) start.set(i, 1);
@@ -451,10 +451,11 @@ void Scanner::Init() {
 	keywords.set(L"if", 25);
 	keywords.set(L"else", 26);
 	keywords.set(L"while", 27);
-	keywords.set(L"print", 28);
-	keywords.set(L"false", 29);
-	keywords.set(L"true", 30);
-	keywords.set(L"Program", 31);
+	keywords.set(L"do", 28);
+	keywords.set(L"print", 29);
+	keywords.set(L"false", 30);
+	keywords.set(L"true", 31);
+	keywords.set(L"Program", 32);
 
 
 	tvalLength = 128;

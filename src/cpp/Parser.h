@@ -62,7 +62,7 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
 
 
     int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN, // operation codes
-        LOAD, CONST, FCALL, RETURN, GOTO, GOTOF, STORE, READ, WRITE, PRINT, NEQU, PARENTHESIS;
+        LOAD, CONST, FCALL, RETURN, GOTO, GOTOF, STORE, READ, WRITE, PRINT, NEQU, PARENTHESIS, GOTOT;
 
     void InitDeclarations() {
         plus = 0, minus = 1, times = 2, slash = 3, equals = 4, lessThan = 5, greaterThan = 6, assign = 7;
@@ -72,7 +72,7 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
         // Operational Codes
         ADD = 0, SUB = 1, MUL = 2, DIV = 3, EQU = 4, LSS = 5, GTR = 6, ASSIGN = 7;
         LOAD = 8; CONST = 9; FCALL = 10; RETURN = 11; GOTO = 12; GOTOF = 13; STORE = 14; 
-        READ = 15; WRITE = 16; PRINT = 17; NEQU = 18, PARENTHESIS = 19;
+        READ = 15; WRITE = 16; PRINT = 17; NEQU = 18, PARENTHESIS = 19; GOTOT = 20;
     }
 
     SymbolTable* symbolTable;
@@ -96,6 +96,7 @@ int plus, minus, times, slash, equals, lessThan, greaterThan, assign; // Operato
 	void LogicalExpresion(int& type);
 	void IfCase();
 	void WhileLoop();
+	void DoWhileLoop();
 	void Print();
 	void SimExpr(int& type);
 	void Term(int& type);

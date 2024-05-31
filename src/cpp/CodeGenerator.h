@@ -18,7 +18,7 @@ class CodeGenerator {
     public:
         // opcodes
         int ADD, SUB, MUL, DIV, EQU, LSS, GTR, ASSIGN,
-            LOAD, CONST, FCALL, RETURN, GOTO, GOTOF, STORE, READ, WRITE, PRINT, NEQU;
+            LOAD, CONST, FCALL, RETURN, GOTO, GOTOF, STORE, READ, WRITE, PRINT, NEQU, GOTOT;
 
         int ERROR;
         int undef, integer, boolean, decimal; // types
