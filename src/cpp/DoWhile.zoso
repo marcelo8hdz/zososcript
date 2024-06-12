@@ -1,0 +1,10 @@
+Program DoWhile;
+
+int x;
+
+x = 1;
+do {
+    print(x, "do while");
+    x = x + 1;
+    print(x < 10);
+} while (x < 10)
